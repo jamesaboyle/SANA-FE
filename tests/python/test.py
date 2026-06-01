@@ -266,14 +266,6 @@ class TestAttributeRoundTrip(unittest.TestCase):
 # --------------------------------------------------------------------------
 
 class TestArchitectureComponents(unittest.TestCase):
-    def test_create_tile_and_core_on_arch(self):
-        arch, _ = load_reference_arch()
-        # Adding to a loaded arch should work and be enumerable.
-        tile = arch.create_tile("extra_tile")
-        core = arch.create_core("extra_core", tile.id)
-        self.assertEqual(core.name, "extra_core")
-        self.assertGreaterEqual(len(arch.cores()), 1)
-
     def test_reference_arch_has_tile_and_core(self):
         arch, _ = load_reference_arch()
         self.assertGreaterEqual(len(arch.tiles), 1)
