@@ -978,7 +978,7 @@ void sanafe::SpikingChip::forced_updates(const Timestep &ts)
     //  every time-step, regardless of whether it received inputs or not.
     //  Note that energy is accounted for, but latency is not considered here.
     auto core_list = cores();
-#ifdef ENABLE_OPENMP
+#ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
     for (auto idx : core_list)

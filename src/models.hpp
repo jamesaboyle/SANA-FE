@@ -365,7 +365,7 @@ public:
 private:
     static inline unsigned int instance_counter = 0;
     std::vector<bool> spikes;
-    std::vector<bool>::const_iterator curr_spike{spikes.begin()};
+    size_t curr_spike{0UL};
     std::uniform_real_distribution<double> uniform_distribution{0.0, 1.0};
     // Intentionally use a fixed seed to get deterministic results across runs
     // To truly randomize, use:

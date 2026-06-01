@@ -137,7 +137,7 @@ void sanafe::AccumulatorWithDelayModel::set_attribute_edge(
     if (delays.size() <= synapse_address)
     {
         TRACE1(MODELS, "Resizing weights to: %zu\n", synapse_address + 1);
-        delays.resize(synapse_address + 1, 0UL);
+        delays.resize(synapse_address + 1UL, 0UL);
     }
 
     if ((attribute_name == "delay") || (attribute_name == "d"))
@@ -160,7 +160,7 @@ void sanafe::AccumulatorWithDelayModel::track_connection(
     if (delays.size() <= synapse_address)
     {
         TRACE1(MODELS, "Resizing weights to: %zu\n", synapse_address + 1);
-        delays.resize(synapse_address, 0UL);
+        delays.resize(synapse_address + 1UL, 0UL);
     }
 }
 
@@ -282,6 +282,10 @@ void sanafe::MultiTapModel1D::set_attribute_neuron(const size_t /*address*/,
     {
         const size_t n_taps = tap_voltages.size();
         time_constants = static_cast<std::vector<double>>(param);
+        if (n_taps == 0)
+        {
+            throw std::invalid_argument("Number of taps must be > 0\n");
+        }
         if (time_constants.size() < n_taps)
         {
             const std::string error = "Expected " + std::to_string(n_taps) +
@@ -301,11 +305,15 @@ void sanafe::MultiTapModel1D::set_attribute_neuron(const size_t /*address*/,
     {
         const size_t n_taps = tap_voltages.size();
         space_constants = static_cast<std::vector<double>>(param);
+        if (n_taps == 0)
+        {
+            throw std::invalid_argument("Number of taps must be > 0\n");
+        }
         if (space_constants.size() < (n_taps - 1))
         {
             const std::string error = "Expected " + std::to_string(n_taps - 1) +
                     " but received " + std::to_string(time_constants.size()) +
-                    "time constants.";
+                    "space constants.";
             throw std::invalid_argument(error);
         }
         if (space_constants.size() > (n_taps - 1))
@@ -837,7 +845,7 @@ void sanafe::InputModel::set_attribute_neuron(const size_t /*neuron_address*/,
     {
         spikes = static_cast<std::vector<bool>>(param);
         TRACE1(MODELS, "Setting input spike train (len:%zu)\n", spikes.size());
-        curr_spike = spikes.begin();
+        curr_spike = 0UL;
     }
     else if (attribute_name == "poisson")
     {
@@ -874,10 +882,10 @@ sanafe::PipelineResult sanafe::InputModel::update(const size_t neuron_address,
     }
 
     send_spike = false;
-    if (curr_spike != spikes.end())
+    if (curr_spike < spikes.size())
     {
-        send_spike = *curr_spike;
-        curr_spike = std::next(curr_spike);
+        send_spike = spikes.at(curr_spike);
+        ++curr_spike;
     }
 
     if (poisson_probability > uniform_distribution(gen))
@@ -888,12 +896,20 @@ sanafe::PipelineResult sanafe::InputModel::update(const size_t neuron_address,
     }
 
     TRACE1(MODELS, "Simulation time:%ld\n", simulation_time);
-    if ((rate > 0.0) &&
-            ((simulation_time % static_cast<long int>(1.0 / rate)) == 0))
+    if (rate < 0.0 || rate > 1.0)
     {
-        send_spike = true;
-        TRACE2(MODELS, "n:%zu randomly generating spikes (rate).\n",
-                neuron_address);
+        throw std::invalid_argument(
+                "Invalid input rate: " + std::to_string(rate));
+    }
+    else if (rate > 0.0)
+    {
+        const long int interval = static_cast<long int>(1.0 / rate);
+        if ((simulation_time % interval) == 0)
+        {
+            send_spike = true;
+            TRACE2(MODELS, "n:%zu randomly generating spikes (rate).\n",
+                    neuron_address);
+        }
     }
 
     const NeuronStatus status = send_spike ? fired : idle;
