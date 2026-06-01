@@ -81,14 +81,13 @@ sanafe::SpikingNetwork sanafe::yaml_parse_network_file(
     fp.close();
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
+    INFO("Loading network YAML information from file.\n");
     const ryml::Tree top_level_yaml =
             ryml::parse_in_place(&parser, file_content.data());
-    INFO("Loading network YAML information from file.\n");
     // NOLINTNEXT(misc-include-cleaner)
-    ryml::Tree tree = ryml::parse_in_place(file_content.data());
     INFO("Network YAML information loaded from file.\n");
 
-    const ryml::ConstNodeRef yaml_node = tree.rootref();
+    const ryml::ConstNodeRef yaml_node = top_level_yaml.rootref();
     if (yaml_node.is_map())
     {
         if (yaml_node.find_child("network").invalid())
@@ -424,7 +423,7 @@ sanafe::description_parse_edge_description(const std::string_view &description,
     if (target_neuron_defined && !source_neuron_defined)
     {
         throw YamlDescriptionParsingError(
-                "No target neuron defined in edge:" + std::string(description),
+                "No source neuron defined in edge:" + std::string(description),
                 parser, node);
     }
 
@@ -1012,13 +1011,13 @@ void sanafe::description_parse_mapping_info(const ryml::Parser &parser,
         {
             info["dendrite"] >> n.dendrite_hw_name;
             TRACE3(DESCRIPTION, "Parsed dendrite unit name: %s",
-                    n.default_synapse_hw_name.c_str());
+                    n.dendrite_hw_name.c_str());
         }
         if (!info.find_child("soma").invalid())
         {
             info["soma"] >> n.soma_hw_name;
             TRACE3(DESCRIPTION, "Parsed soma unit name: %s",
-                    n.default_synapse_hw_name.c_str());
+                    n.soma_hw_name.c_str());
         }
         if (!info.find_child("core").invalid())
         {
@@ -1319,7 +1318,7 @@ ryml::NodeRef sanafe::yaml_serialize_model_attributes(
         const bool default_value_exists = default_values.find(key) !=
                 default_values.end();
         const bool same_as_default = default_value_exists &&
-                (default_values.at(key) != attribute);
+                (default_values.at(key) == attribute);
         if (same_as_default)
         {
             continue;
