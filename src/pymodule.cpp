@@ -606,7 +606,7 @@ std::string pypipeline_unit_config_repr(
     return repr;
 }
 
-static pybind11::dict pyenumerate_pipeline_unit(sanafe::PipelineUnit &hw)
+static pybind11::dict pydescribe_pipeline_unit(sanafe::PipelineUnit &hw)
 {
     pybind11::dict d;
     d["name"]  = hw.name;
@@ -636,7 +636,7 @@ static pybind11::dict pyenumerate_pipeline_unit(sanafe::PipelineUnit &hw)
     return d;
 }
 
-static pybind11::dict pyenumerate_core(const sanafe::Core &core)
+static pybind11::dict pydescribe_core(const sanafe::Core &core)
 {
     pybind11::dict d;
     d["name"] = core.name;
@@ -645,7 +645,7 @@ static pybind11::dict pyenumerate_core(const sanafe::Core &core)
     pybind11::list units;
     for (const auto &hw : core.pipeline_hw)   // owning handle -> deref
     {
-        units.append(pyenumerate_pipeline_unit(*hw));
+        units.append(pydescribe_pipeline_unit(*hw));
     }
     d["pipeline_units"] = units;
 
@@ -660,7 +660,7 @@ static pybind11::dict pyenumerate_core(const sanafe::Core &core)
     return d;
 }
 
-static pybind11::dict pyenumerate_tile(const sanafe::Tile &tile)
+static pybind11::dict pydescribe_tile(const sanafe::Tile &tile)
 {
     pybind11::dict d;
     d["name"] = tile.name;
@@ -669,14 +669,14 @@ static pybind11::dict pyenumerate_tile(const sanafe::Tile &tile)
     pybind11::list cores;
     for (const auto &core : tile.cores)
     {
-        cores.append(pyenumerate_core(core));
+        cores.append(pydescribe_core(core));
     }
     d["cores"] = cores;
 
     return d;
 }
 
-static pybind11::dict pyenumerate_chip(sanafe::SpikingChip &chip)
+static pybind11::dict pydescribe(sanafe::SpikingChip &chip)
 {
     pybind11::dict d;
     d["core_count"]         = chip.core_count;
@@ -686,7 +686,7 @@ static pybind11::dict pyenumerate_chip(sanafe::SpikingChip &chip)
     pybind11::list tiles;
     for (const auto &tile : chip.tiles)
     {
-        tiles.append(pyenumerate_tile(tile));
+        tiles.append(pydescribe_tile(tile));
     }
     d["tiles"] = tiles;
 
@@ -1414,7 +1414,7 @@ PYBIND11_MODULE(sanafecpp, m)
                     docstrings::spiking_chip_get_power_doc)
             .def("reset", &sanafe::SpikingChip::reset,
                     docstrings::spiking_chip_reset_doc)
-            .def("enumerate_chip", &pyenumerate_chip,
+            .def("describe", &pydescribe,
                     "Enumerate the full chip structure -- every tile, core, pipeline unit, "
                     "and the attributes each unit supports -- as a nested dictionary. ");
 }

@@ -60,7 +60,7 @@ Quickstart
     import json
     # Get a complete view and specification of the chip hardware, including all
     #  its pipeline h/w and supported attributes
-    print(json.dumps(chip.enumerate_chip(), indent=1))
+    print(json.dumps(chip.describe(), indent=1))
 
     # Running and dynamically controlling a simulation
     results = chip.sim(2)
