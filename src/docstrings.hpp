@@ -232,11 +232,10 @@ Returns:
 constexpr const char *architecture_create_core_doc = R"pbdoc(
 Add a processing core to an existing tile.
 
-
 Args:
     name (str): Unique core identifier within tile
     parent_tile_id (int): ID of containing tile
-    buffer_position (BufferPosition, optional): Pipeline buffer location. Default is before soma.
+    buffer_position (str, optional): Pipeline buffer location. Default is "soma".
     buffer_inside_unit (bool, optional): Whether buffer is inside processing unit. Default is False.
     max_neurons_supported (int, optional): Maximum neurons per core. Default is None.
     log_energy (bool, optional): Enable core energy logging. Default is False.

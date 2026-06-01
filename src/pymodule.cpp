@@ -852,8 +852,6 @@ pybind11::dict pysim(sanafe::SpikingChip *self, const long int timesteps,
     return result;
 }
 
-} // end of anonymous namespace
-
 // Custom Python wrapper class for the Neuron class
 //  While most objects are managed fine, pybind struggles to manage object
 //  lifetime for Neurons, which can be accessed as slices and returned inside
@@ -938,9 +936,8 @@ public:
         {
             // Integer indexing: return a single PyNeuronRef
             const long i = pybind11::cast<long>(index);
-            // Handle negative indexing
-            const size_t idx = (i < 0) ? (group_->neurons.size() + i) : i;
-
+            const size_t idx = (i < 0) ? (group_->neurons.size() + i) :
+                                         static_cast<size_t>(i);
             if (idx >= group_->neurons.size())
             {
                 throw pybind11::index_error();
@@ -992,6 +989,36 @@ public:
                 " neurons>";
     }
 };
+
+size_t pyconnect_to_neuron(const PyNeuronRef &ref, const PyNeuronRef &dest_ref,
+        const pybind11::object &attr)
+{
+    // Extract the actual neuron from the destination ref
+    sanafe::Neuron &dest = *(dest_ref.get());
+    // Accept either an explicit dict or None (the default).
+    pybind11::dict attr_dict;
+    if (!attr.is_none())
+    {
+        attr_dict = pybind11::cast<pybind11::dict>(attr);
+    }
+    const size_t con_idx = ref.get()->connect_to_neuron(dest);
+    sanafe::Connection &con = ref.get()->edges_out[con_idx];
+    const auto attributes = pydict_to_model_attributes(attr_dict);
+    for (const auto &[key, attribute] : attributes)
+    {
+        if (attribute.forward_to_synapse)
+        {
+            con.synapse_attributes[key] = attribute;
+        }
+        if (attribute.forward_to_dendrite)
+        {
+            con.dendrite_attributes[key] = attribute;
+        }
+    }
+    return con_idx;
+}
+
+} // end of anonymous namespace
 
 // NOLINTBEGIN(readability-function-cognitive-complexity)
 PYBIND11_MODULE(sanafecpp, m)
@@ -1096,15 +1123,19 @@ PYBIND11_MODULE(sanafecpp, m)
                                 pybind11::cast<sanafe::NeuronGroup &>(self_obj);
                         if (pybind11::isinstance<pybind11::int_>(index))
                         {
-                            // Integer indexing
-                            const auto i = pybind11::cast<size_t>(index);
-                            if (i >= self.neurons.size())
+                            // Integer indexing (supports negative indices)
+                            const long i = pybind11::cast<long>(index);
+                            const size_t idx = (i < 0) ?
+                                    (self.neurons.size() + i) :
+                                    static_cast<size_t>(i);
+                            if (idx >= self.neurons.size())
                             {
                                 throw pybind11::index_error();
                             }
-                            // Return a NeuronRef that keeps the group reference alive
+                            // Return a NeuronRef that keeps the group reference
+                            //  alive
                             return pybind11::cast(
-                                    PyNeuronRef(self_obj, &self.neurons[i]));
+                                    PyNeuronRef(self_obj, &self.neurons[idx]));
                         }
                         if (pybind11::isinstance<pybind11::slice>(index))
                         {
@@ -1187,36 +1218,10 @@ PYBIND11_MODULE(sanafecpp, m)
                     pybind11::arg("model_attributes") = pybind11::dict(),
                     pybind11::arg("soma_attributes") = pybind11::dict(),
                     pybind11::arg("dendrite_attributes") = pybind11::dict())
-            .def(
-                    "connect_to_neuron",
-                    [](const PyNeuronRef &ref, const PyNeuronRef &dest_ref,
-                            std::optional<pybind11::dict> attr =
-                                    pybind11::none()) -> size_t {
-                        // Extract the actual neuron from the destination ref
-                        sanafe::Neuron &dest = *(dest_ref.get());
-                        if (!attr.has_value())
-                        {
-                            attr = pybind11::dict();
-                        }
-                        const size_t con_idx =
-                                ref.get()->connect_to_neuron(dest);
-                        sanafe::Connection &con = ref.get()->edges_out[con_idx];
-                        const auto attributes =
-                                pydict_to_model_attributes(attr.value());
-                        for (const auto &[key, attribute] : attributes)
-                        {
-                            if (attribute.forward_to_synapse)
-                            {
-                                con.synapse_attributes[key] = attribute;
-                            }
-                            if (attribute.forward_to_dendrite)
-                            {
-                                con.dendrite_attributes[key] = attribute;
-                            }
-                        }
-                        return con_idx;
-                    },
-                    docstrings::neuron_connect_to_neuron_doc)
+            .def("connect_to_neuron", &pyconnect_to_neuron,
+                    docstrings::neuron_connect_to_neuron_doc,
+                    pybind11::arg("dest_neuron"),
+                    pybind11::arg("attributes") = pybind11::none())
             // Expose edges_out as a property
             .def_property_readonly("edges_out",
                     [](const PyNeuronRef &ref)
@@ -1282,14 +1287,13 @@ PYBIND11_MODULE(sanafecpp, m)
                     pybind11::arg("log_energy") = false)
             .def("create_core", &pycreate_core,
                     docstrings::architecture_create_core_doc,
+                    pybind11::return_value_policy::reference_internal,
                     pybind11::arg("name"), pybind11::arg("parent_tile_id"),
-                    pybind11::arg("buffer_position") =
-                            sanafe::buffer_before_soma_unit,
+                    pybind11::arg("buffer_position") = "soma",
                     pybind11::arg("buffer_inside_unit") = false,
                     pybind11::arg("max_neurons_supported") =
                             sanafe::default_max_neurons,
-                    pybind11::arg("log_energy") = false,
-                    pybind11::return_value_policy::reference_internal)
+                    pybind11::arg("log_energy") = false)
             .def_readwrite("tiles", &sanafe::Architecture::tiles)
             .def("cores", &sanafe::Architecture::cores);
     pybind11::class_<sanafe::TileConfiguration>(m, "Tile")
@@ -1304,6 +1308,8 @@ PYBIND11_MODULE(sanafecpp, m)
                     pybind11::arg("energy_west_hop") = 0.0,
                     pybind11::arg("latency_west_hop") = 0.0,
                     pybind11::arg("log_energy") = false)
+            .def_readonly("id", &sanafe::TileConfiguration::id)
+            .def_readonly("name", &sanafe::TileConfiguration::name)
             .def_readwrite("cores", &sanafe::TileConfiguration::cores)
             .def("__repr__", [](const sanafe::TileConfiguration &self) {
                 return "<Tile '" + self.name +
