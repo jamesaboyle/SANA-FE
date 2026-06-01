@@ -3,6 +3,7 @@
 //  Engineering Solutions of Sandia, LLC which is under contract
 //  No. DE-NA0003525 with the U.S. Department of Energy.
 // pymodule.cpp
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <cstddef>
@@ -34,6 +35,7 @@
 #include "arch.hpp"
 #include "attribute.hpp"
 #include "chip.hpp"
+#include "core.hpp"
 #include "docstrings.hpp"
 #include "mapped.hpp"
 #include "models.hpp"
@@ -42,6 +44,7 @@
 #include "print.hpp"
 #include "pytrace.hpp"
 #include "schedule.hpp"
+#include "tile.hpp"
 #include "timestep.hpp"
 
 #define PYBIND11_DETAILED_ERROR_MESSAGES
@@ -606,18 +609,18 @@ std::string pypipeline_unit_config_repr(
     return repr;
 }
 
-static pybind11::dict pydescribe_pipeline_unit(sanafe::PipelineUnit &hw)
+pybind11::dict pydescribe_pipeline_unit(sanafe::PipelineUnit &hw)
 {
     pybind11::dict d;
-    d["name"]  = hw.name;
+    d["name"] = hw.name;
     d["model"] = hw.model;
 
-    d["implements_synapse"]  = hw.implements_synapse;
+    d["implements_synapse"] = hw.implements_synapse;
     d["implements_dendrite"] = hw.implements_dendrite;
-    d["implements_soma"]     = hw.implements_soma;
+    d["implements_soma"] = hw.implements_soma;
 
-    d["log_energy"]            = hw.log_energy;
-    d["log_latency"]           = hw.log_latency;
+    d["log_energy"] = hw.log_energy;
+    d["log_latency"] = hw.log_latency;
     d["update_every_timestep"] = hw.update_every_timestep;
 
     if (hw.plugin_lib.has_value())
@@ -636,35 +639,41 @@ static pybind11::dict pydescribe_pipeline_unit(sanafe::PipelineUnit &hw)
     return d;
 }
 
-static pybind11::dict pydescribe_core(const sanafe::Core &core)
+pybind11::dict pydescribe_core(const sanafe::Core &core)
 {
     pybind11::dict d;
     d["name"] = core.name;
-    d["id"]   = core.id;
+    d["id"] = core.id;
 
     pybind11::list units;
-    for (const auto &hw : core.pipeline_hw)   // owning handle -> deref
+    for (const auto &hw : core.pipeline_hw) // owning handle -> deref
     {
         units.append(pydescribe_pipeline_unit(*hw));
     }
     d["pipeline_units"] = units;
 
     pybind11::list axons_in;
-    for (const auto &a : core.axon_in_hw)  { axons_in.append(a.name); }
+    for (const auto &a : core.axon_in_hw)
+    {
+        axons_in.append(a.name);
+    }
     d["axon_in"] = axons_in;
 
     pybind11::list axons_out;
-    for (const auto &a : core.axon_out_hw) { axons_out.append(a.name); }
+    for (const auto &a : core.axon_out_hw)
+    {
+        axons_out.append(a.name);
+    }
     d["axon_out"] = axons_out;
 
     return d;
 }
 
-static pybind11::dict pydescribe_tile(const sanafe::Tile &tile)
+pybind11::dict pydescribe_tile(const sanafe::Tile &tile)
 {
     pybind11::dict d;
     d["name"] = tile.name;
-    d["id"]   = tile.id;
+    d["id"] = tile.id;
 
     pybind11::list cores;
     for (const auto &core : tile.cores)
@@ -676,11 +685,11 @@ static pybind11::dict pydescribe_tile(const sanafe::Tile &tile)
     return d;
 }
 
-static pybind11::dict pydescribe(sanafe::SpikingChip &chip)
+pybind11::dict pydescribe(const sanafe::SpikingChip &chip)
 {
     pybind11::dict d;
-    d["core_count"]         = chip.core_count;
-    d["noc_width_in_tiles"]  = chip.noc_width_in_tiles;
+    d["core_count"] = chip.core_count;
+    d["noc_width_in_tiles"] = chip.noc_width_in_tiles;
     d["noc_height_in_tiles"] = chip.noc_height_in_tiles;
 
     pybind11::list tiles;
@@ -935,7 +944,7 @@ public:
         if (pybind11::isinstance<pybind11::int_>(index))
         {
             // Integer indexing: return a single PyNeuronRef
-            const long i = pybind11::cast<long>(index);
+            const auto i = pybind11::cast<long>(index);
             const size_t idx = (i < 0) ? (group_->neurons.size() + i) :
                                          static_cast<size_t>(i);
             if (idx >= group_->neurons.size())
@@ -1124,7 +1133,7 @@ PYBIND11_MODULE(sanafecpp, m)
                         if (pybind11::isinstance<pybind11::int_>(index))
                         {
                             // Integer indexing (supports negative indices)
-                            const long i = pybind11::cast<long>(index);
+                            const auto i = pybind11::cast<long>(index);
                             const size_t idx = (i < 0) ?
                                     (self.neurons.size() + i) :
                                     static_cast<size_t>(i);
@@ -1356,8 +1365,7 @@ PYBIND11_MODULE(sanafecpp, m)
             .def("__repr__", [](const sanafe::AxonOutConfiguration &self) {
                 return "<AxonOutConfiguration '" + self.name + "'>";
             });
-    pybind11::class_<sanafe::PipelineUnitConfiguration>(
-            m, "PipelineUnit")
+    pybind11::class_<sanafe::PipelineUnitConfiguration>(m, "PipelineUnit")
             .def_readonly("model_info",
                     &sanafe::PipelineUnitConfiguration::model_info)
             .def_readonly("name", &sanafe::PipelineUnitConfiguration::name)
