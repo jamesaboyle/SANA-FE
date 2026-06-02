@@ -108,7 +108,7 @@ void sanafe::plugin_init_hw(
     plugin_handles[model_name] = DlHandlePtr(hw);
     if (hw == nullptr)
     {
-        INFO("Error: Couldn't load library %s\n", plugin_path.c_str());
+        INFO("Error: Couldn't load library %s\n", plugin_path.string().c_str());
         throw std::runtime_error("Error: Could not load library.\n");
     }
 
@@ -120,6 +120,7 @@ void sanafe::plugin_init_hw(
     plugin_create_hw[model_name] = create_func;
     // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
+    // cppcheck-suppress knownConditionTrueFalse
     if (hw == nullptr)
     {
         INFO("Error: Couldn't load library %s: %s\n",
