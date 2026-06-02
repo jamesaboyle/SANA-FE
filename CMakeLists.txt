@@ -163,7 +163,6 @@ find_package(Threads REQUIRED)
 # OpenMP i.e. multithreaded builds are optional, but on by default
 if (OpenMP_CXX_FOUND AND ENABLE_OPENMP)
     message(STATUS "OpenMP found: ${OpenMP_CXX_VERSION} and enabled")
-    #add_compile_options(-fopenmp)
 else()
     if(NOT OpenMP_CXX_FOUND)
         message(STATUS "OpenMP not found - parallel code will be disabled")
@@ -229,7 +228,6 @@ cmake_print_variables(PyBind11_DIR)
 if(PYTHON_BUILD_ENABLED)
     if(PYTHON_FROM_SETUP)
         # Force pybind11 to use the Python from setup.py
-        # set(Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
         set(PYBIND11_PYTHON_VERSION "") # Don't let pybind11 override
         message(STATUS "Forcing pybind11 to use Python: ${PYTHON_EXECUTABLE}")
     endif()
@@ -273,8 +271,7 @@ if(PYTHON_BUILD_ENABLED)
     )
     if(WIN32)
         # Quirk with Windows builds - we have to manually link the libraries
-        #  directoy. I tried a few things, including directly using the Python
-        #  module but this is what worked
+        #  directory
         target_link_libraries(sanafecpp PRIVATE ${Python_LIBRARIES})
         message(STATUS "Linking manually for Windows..")
         get_target_property(_sanafe_libs sanafecpp LINK_LIBRARIES)

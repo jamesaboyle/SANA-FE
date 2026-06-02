@@ -56,9 +56,16 @@ class CMakeBuild(build_ext):
         build_args = ["--config", cfg, "-j 10"]
 
         if platform.system() == "Windows":
-            cmake_args += [f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}"]
-            if sys.maxsize > 2**32:
-                cmake_args += ["-A", "x64"]
+            plat_name = self.plat_name
+            if plat_name:
+                plat_to_cmake = {
+                    "win32": "Win32",
+                    "win-amd64": "x64",
+                    "win-arm64": "ARM64",
+                }
+                cmake_arch = plat_to_cmake.get(plat_name)
+                if cmake_arch:
+                    cmake_args += ["-A", cmake_arch]
         else:
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
 
