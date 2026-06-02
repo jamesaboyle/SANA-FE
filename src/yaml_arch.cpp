@@ -391,7 +391,7 @@ void sanafe::description_parse_tile_section_yaml(const ryml::Parser &parser,
         range = yaml_parse_range(tile_name);
     }
 
-    for (int t = range.first; t <= range.second; t++)
+    for (size_t t = range.first; t <= range.second; t++)
     {
         std::string name = tile_name.substr(0, tile_name.find('[')) + "[" +
                 std::to_string(t) + "]";
