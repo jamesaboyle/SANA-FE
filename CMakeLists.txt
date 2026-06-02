@@ -272,6 +272,12 @@ if(PYTHON_BUILD_ENABLED)
         ${SOURCE_FILES}
     )
 
+    if(TARGET Python::Module)
+        get_target_property(_pymod_libs Python::Module INTERFACE_LINK_LIBRARIES)
+        cmake_print_variables(_pymod_libs)
+    endif()
+    cmake_print_variables(Python_LIBRARIES Python_LIBRARY_DIRS Python_RUNTIME_LIBRARY_DIRS Python_LIBRARY)
+
     target_link_libraries(sanafecpp PRIVATE pybind11::pybind11)
     target_link_libraries(sanafecpp PRIVATE Python::Module)
     target_link_libraries(sanafecpp PUBLIC ryml::ryml)
