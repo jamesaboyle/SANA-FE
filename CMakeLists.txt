@@ -46,9 +46,13 @@ endif()
 
 project(sana-fe)
 
-add_compile_options(
-    -Wall -pedantic -Werror -g -fPIC -pthread
-)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(Threads REQUIRED)
+if(MSVC)
+    add_compile_options(/W4 /WX)
+else()
+    add_compile_options(-Wall -pedantic -Werror)
+endif()
 
 # Set default debug levels for tracing
 if(NOT DEFINED DEBUG_LEVEL_ARCH)
