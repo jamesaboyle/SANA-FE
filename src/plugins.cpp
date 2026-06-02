@@ -119,13 +119,11 @@ void sanafe::plugin_init_hw(
     plugin_create_hw[model_name] = create_func;
     // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
-    if (create_func == nullptr)
+    if (hw == nullptr)
     {
-        INFO("Error: Couldn't load symbol %s: %s\n", create.c_str(),
-                plugin_dlerror().c_str());
-        // This will also automatically close the library through its unique_ptr
-        plugin_handles.erase(model_name);
-        throw std::runtime_error("Error: Could not load symbol.\n");
+        INFO("Error: Couldn't load library %s: %s\n",
+                plugin_path.string().c_str(), plugin_dlerror().c_str());
+        throw std::runtime_error("Error: Could not load library.\n");
     }
     INFO("Loaded plugin symbols for %s.\n", model_name.c_str());
 }
