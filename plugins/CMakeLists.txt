@@ -6,7 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_BUILD_TYPE Shared)
 
-add_compile_options(-Wall -pedantic -Werror -g)
+if(MSVC)
+    add_compile_options(/W4 /WX /wd4127)  # Disable warn on empty control
+else()
+    add_compile_options(-Wall -pedantic -Werror)
+endif()
 
 add_library(hodgkin_huxley SHARED "hodgkin_huxley.cpp")
 target_include_directories(hodgkin_huxley PRIVATE ../src)
