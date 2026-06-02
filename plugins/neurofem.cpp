@@ -228,13 +228,13 @@ sanafe::PipelineResult NeuroFEMModel::update(size_t neuron_address,
     if (current_in.has_value())
     {
         TRACE1(PLUGINS, "Received synaptic current:%e\n", current_in.value());
-        int cx = 0;
+        size_t cx = 0UL;
         if (synaptic_address.has_value())
         {
             // Note if not stored explicitly, the default compartment is 0
             cx = synapse_to_compartment[synaptic_address.value()];
         }
-        if (cx == 0)
+        if (cx == 0UL)
         {
             n.next_u1_dendritic_accumulator =
                     n.next_u1_dendritic_accumulator.value_or(0.0) +
