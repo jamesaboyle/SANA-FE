@@ -291,6 +291,8 @@ if(PYTHON_BUILD_ENABLED)
         #  directoy. I tried a few things, including directly using the Python
         #  module but this is what worked
         target_link_libraries(sanafecpp PRIVATE ${Python_LIBRARIES})
+        message(STATUS "Linking manually for Windows..")
+        get_target_property(_sanafe_libs sanafecpp LINK_LIBRARIES)
     endif()
     target_link_libraries(sanafecpp PUBLIC ryml::ryml)
     target_link_libraries(sanafecpp PUBLIC booksim)
