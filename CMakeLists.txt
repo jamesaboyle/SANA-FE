@@ -145,6 +145,8 @@ if(PYTHON_BUILD_ENABLED)
         if(NOT DEFINED PYTHON_EXECUTABLE OR NOT DEFINED PYTHON_INCLUDE_DIRS)
             message(FATAL_ERROR "PYTHON_EXECUTABLE and PYTHON_INCLUDE_DIRS must be provided when PYTHON_FROM_SETUP=ON")
         endif()
+        set(Python_EXECUTABLE ${PYTHON_EXECUTABLE})
+        find_package(Python COMPONENTS Interpreter Development REQUIRED)
     else()
         if(PYTHON_VERSION)
             find_package(Python ${PYTHON_VERSION} EXACT COMPONENTS Interpreter Development REQUIRED)
@@ -219,7 +221,7 @@ if(NOT BOOKSIM_INCLUDE_DIRS)
 endif()
 #### END of booksim2
 
-include_directories(${PYTHON_INCLUDE_DIRS})
+# include_directories(${PYTHON_INCLUDE_DIRS})
 
 cmake_print_variables(PyBind11_DIR)
 
@@ -227,8 +229,7 @@ cmake_print_variables(PyBind11_DIR)
 if(PYTHON_BUILD_ENABLED)
     if(PYTHON_FROM_SETUP)
         # Force pybind11 to use the Python from setup.py
-        set(Python_EXECUTABLE ${PYTHON_EXECUTABLE})
-        set(Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+        # set(Python_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
         set(PYBIND11_PYTHON_VERSION "") # Don't let pybind11 override
         message(STATUS "Forcing pybind11 to use Python: ${PYTHON_EXECUTABLE}")
     endif()
@@ -265,6 +266,7 @@ if(PYTHON_BUILD_ENABLED)
         endif()
     endif()
 
+    cmake_print_variables(PYTHON_LIBRARIES Python_LIBRARIES Python_LIBRARY_DIRS)
     pybind11_add_module(
         sanafecpp
         ${SOURCE_FILES}
