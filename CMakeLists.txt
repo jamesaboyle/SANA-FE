@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT MSVC AND NOT APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
 endif()
 
@@ -161,7 +161,7 @@ find_package(Threads REQUIRED)
 # OpenMP i.e. multithreaded builds are optional, but on by default
 if (OpenMP_CXX_FOUND AND ENABLE_OPENMP)
     message(STATUS "OpenMP found: ${OpenMP_CXX_VERSION} and enabled")
-    add_compile_options(-fopenmp)
+    #add_compile_options(-fopenmp)
 else()
     if(NOT OpenMP_CXX_FOUND)
         message(STATUS "OpenMP not found - parallel code will be disabled")
@@ -171,7 +171,7 @@ else()
 endif()
 
 ############## rapid-yaml
-project(ryml-quickstart LANGUAGES CXX)
+#project(ryml-quickstart LANGUAGES CXX)
 set(RYML_VERSION "v0.13.0")
 message(STATUS "FetchContent for tag: ${RYML_VERSION}")
 set(RYML_INSTALL OFF)
@@ -190,7 +190,7 @@ FetchContent_MakeAvailable(ryml)
 message(STATUS "got ryml")
 
 ############## booksim2
-project(booksim2-quickstart LANGUAGES CXX)
+# project(booksim2-quickstart LANGUAGES CXX)
 set(BOOKSIM_VERSION "01016e08fe062085dee9bc9c1919385f8132ead5")
 set(BOOKSIM_INSTALL OFF)
 set(BOOKSIM_GENERATE_PARSER OFF)
