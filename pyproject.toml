@@ -31,3 +31,6 @@ packages = { find = {} }
 
 [tool.setuptools.package-data]
 sanafe = ["examples/*.yaml", "examples/dvs_challenge.npz"]
+
+[tool.cibuildwheel]
+skip = ["*-win32", "*_i686"]
