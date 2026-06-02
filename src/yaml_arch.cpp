@@ -193,7 +193,7 @@ void sanafe::yaml_parse_pipeline_entry(const ryml::Parser &parser,
         const std::string_view &type, ParseFunc parsing_function)
 {
     auto name = yaml_required_field<std::string>(parser, unit_node, "name");
-    std::pair<int, int> range = {0, 0};
+    std::pair<size_t, size_t> range = {0UL, 0UL};
 
     // Check if name contains range notation (e.g., "foo[0..3]")
     if (name.find(range_delimiter) != std::string::npos)

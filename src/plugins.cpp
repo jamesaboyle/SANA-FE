@@ -103,8 +103,8 @@ void sanafe::plugin_init_hw(
     const std::string create = "create_" + model_name;
 
     // Load the soma library
-    INFO("Loading plugin:%s\n", plugin_path.c_str());
-    void *hw = plugin_dlopen(plugin_path.c_str());
+    INFO("Loading plugin:%s\n", plugin_path.string().c_str());
+    void *hw = plugin_dlopen(plugin_path.string().c_str());
     plugin_handles[model_name] = DlHandlePtr(hw);
     if (hw == nullptr)
     {
