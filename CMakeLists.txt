@@ -278,7 +278,7 @@ if(PYTHON_BUILD_ENABLED)
     endif()
     cmake_print_variables(Python_LIBRARIES Python_LIBRARY_DIRS Python_RUNTIME_LIBRARY_DIRS Python_LIBRARY)
 
-    target_link_libraries(sanafecpp PRIVATE pybind11::pybind11)
+    # target_link_libraries(sanafecpp PRIVATE pybind11::pybind11)
 
     if(TARGET Python::Module)
         get_target_property(_pymod_libs Python::Module INTERFACE_LINK_LIBRARIES)
