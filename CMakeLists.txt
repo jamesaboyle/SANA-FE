@@ -49,7 +49,7 @@ project(sana-fe)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(Threads REQUIRED)
 if(MSVC)
-    add_compile_options(/W4 /WX)
+    add_compile_options(/W4 /WX /wd4127)  # Disable warn on empty control
 else()
     add_compile_options(-Wall -pedantic -Werror)
 endif()
