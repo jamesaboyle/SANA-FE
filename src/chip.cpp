@@ -629,7 +629,8 @@ void sanafe::SpikingChip::process_neurons(Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (size_t idx = 0UL; idx < core_list.size(); idx++)
+    for (size_t idx = 0UL; idx < core_list.size();
+            idx++) // NOLINT(modernize-loop-convert)
     {
         Core &core = core_list[idx];
         for (MappedNeuron &n : core.neurons)
@@ -675,7 +676,8 @@ void sanafe::SpikingChip::process_messages(Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (size_t idx = 0UL; idx < core_list.size(); idx++)
+    for (size_t idx = 0UL; idx < core_list.size();
+            idx++) // NOLINT(modernize-loop-convert)
     {
         Core &core = core_list[idx];
 #ifdef HAVE_OPENMP
@@ -981,7 +983,8 @@ void sanafe::SpikingChip::forced_updates(const Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (size_t idx = 0UL; idx < core_list.size(); idx++)
+    for (size_t idx = 0UL; idx < core_list.size();
+            idx++) // NOLINT(modernize-loop-convert)
     {
         Core &core = core_list[idx];
         for (MappedNeuron &n : core.neurons)
@@ -1398,7 +1401,8 @@ void sanafe::SpikingChip::sim_reset_measurements()
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (size_t idx = 0UL; idx < tiles.size(); idx++)
+    for (size_t idx = 0UL; idx < tiles.size();
+            idx++) // NOLINT(modernize-loop-convert)
     {
         Tile &t = tiles[idx];
         // Reset tile
