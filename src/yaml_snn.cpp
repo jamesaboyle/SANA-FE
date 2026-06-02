@@ -1253,8 +1253,8 @@ ryml::NodeRef sanafe::yaml_serialize_neuron_group(ryml::NodeRef parent,
             neuron_it != group.neurons.end(); ++neuron_it)
     {
         if ((neuron_it->model_attributes != prev_neuron->model_attributes) ||
-            (neuron_it->log_spikes != prev_neuron->log_spikes) ||
-            (neuron_it->log_potential != prev_neuron->log_potential))
+                (neuron_it->log_spikes != prev_neuron->log_spikes) ||
+                (neuron_it->log_potential != prev_neuron->log_potential))
         {
             neuron_runs.emplace_back(run_start, prev_neuron->offset);
             TRACE1(DESCRIPTION, "Adding new run %zu..%zu\n", run_start,

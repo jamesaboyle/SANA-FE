@@ -254,7 +254,6 @@ void sanafe::NeuronGroup::connect_neurons_sparse(NeuronGroup &dest_group,
         Connection &con = source.edges_out[connection_idx];
 
         // Create attributes map for this neuron
-        std::map<std::string, ModelAttribute> attributes;
         for (const auto &[key, value_list] : attribute_lists)
         {
             if (value_list.size() != source_dest_id_pairs.size())

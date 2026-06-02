@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <cstdlib>
 #include <ios>
-#include <iterator>
 #include <map>
 #include <memory>
 #include <optional>
@@ -258,6 +257,7 @@ sanafe::PipelineResult sanafe::MultiTapModel1D::update(size_t neuron_address,
     return output;
 }
 
+// NOLINTNEXTLINE(readability-function-size)
 void sanafe::MultiTapModel1D::set_attribute_neuron(const size_t /*address*/,
         const std::string &attribute_name, const ModelAttribute &param)
 {
@@ -901,9 +901,9 @@ sanafe::PipelineResult sanafe::InputModel::update(const size_t neuron_address,
         throw std::invalid_argument(
                 "Invalid input rate: " + std::to_string(rate));
     }
-    else if (rate > 0.0)
+    if (rate > 0.0)
     {
-        const long int interval = static_cast<long int>(1.0 / rate);
+        const auto interval = static_cast<long int>(1.0 / rate);
         if ((simulation_time % interval) == 0)
         {
             send_spike = true;
