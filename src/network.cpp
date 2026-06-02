@@ -266,11 +266,17 @@ void sanafe::NeuronGroup::connect_neurons_sparse(NeuronGroup &dest_group,
                         "Error: Length of attribute list != "
                         "number of defined edges.");
             }
-            attributes[key] = value_list.at(edge_idx);
+            const ModelAttribute &attribute = value_list.at(edge_idx);
+            if (attribute.forward_to_synapse)
+            {
+                con.synapse_attributes[key] = attribute;
+            }
+            if (attribute.forward_to_dendrite)
+            {
+                con.dendrite_attributes[key] = attribute;
+            }
         }
 
-        con.synapse_attributes = attributes;
-        con.dendrite_attributes = attributes;
         ++edge_idx;
     }
 }
@@ -590,7 +596,7 @@ void sanafe::NeuronGroup::connect_neurons_dense(NeuronGroup &dest_group,
                     throw std::invalid_argument(
                             "Not enough entries defined for attribute");
                 }
-                const ModelAttribute &attribute = attribute_list[list_index];
+                const ModelAttribute &attribute = attribute_list.at(list_index);
                 if (attribute.forward_to_synapse)
                 {
                     con.synapse_attributes[key] = attribute;

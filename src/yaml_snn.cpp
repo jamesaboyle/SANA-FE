@@ -63,13 +63,21 @@ sanafe::SpikingNetwork sanafe::yaml_parse_network_file(
 {
     if (!fp.is_open())
     {
-        throw std::runtime_error("Error opening file\n");
+        const std::string error = "Error opening file";
+        INFO("Error:%s\n", error.c_str());
+        throw std::runtime_error(error);
     }
 
     // Get file size
     fp.seekg(0, std::ios::end);
     const std::streampos file_size = fp.tellg();
     fp.seekg(0, std::ios::beg);
+    if (file_size < 0)
+    {
+        const std::string error = "Error reading filesize";
+        INFO("Error:%s\n", error.c_str());
+        throw std::runtime_error(error);
+    }
 
     // Allocate memory
     std::string file_content;
@@ -485,7 +493,7 @@ void sanafe::description_parse_neuron_connection(
         const std::string error("No source neuron id set");
         throw YamlDescriptionParsingError(error, parser, attributes_node);
     }
-    if (source_address.neuron_offset >= source_group.neurons.size())
+    if (source_address.neuron_offset.value() >= source_group.neurons.size())
     {
         std::string error =
                 "Invalid source neuron id: " + source_address.group_name;
@@ -510,7 +518,7 @@ void sanafe::description_parse_neuron_connection(
         const std::string error("No target neuron id set");
         throw YamlDescriptionParsingError(error, parser, attributes_node);
     }
-    if (target_address.neuron_offset >= target_group.neurons.size())
+    if (target_address.neuron_offset.value() >= target_group.neurons.size())
     {
         const std::string error =
                 "Invalid target neuron id: " + target_address.group_name + "." +
@@ -1244,7 +1252,9 @@ ryml::NodeRef sanafe::yaml_serialize_neuron_group(ryml::NodeRef parent,
     for (auto neuron_it = group.neurons.begin();
             neuron_it != group.neurons.end(); ++neuron_it)
     {
-        if (neuron_it->model_attributes != prev_neuron->model_attributes)
+        if ((neuron_it->model_attributes != prev_neuron->model_attributes) ||
+            (neuron_it->log_spikes != prev_neuron->log_spikes) ||
+            (neuron_it->log_potential != prev_neuron->log_potential))
         {
             neuron_runs.emplace_back(run_start, prev_neuron->offset);
             TRACE1(DESCRIPTION, "Adding new run %zu..%zu\n", run_start,
@@ -1287,11 +1297,15 @@ ryml::NodeRef sanafe::yaml_serialize_neuron_run(ryml::NodeRef neurons_node,
     // Add model attributes if they exist and differ from group defaults
     neuron_node |= ryml::MAP; // NOLINT(misc-include-cleaner)
     neuron_node |= ryml::FLOW_SL; // NOLINT(misc-include-cleaner)
-    if (neuron.log_spikes)
+    const bool default_log_spikes =
+            group.default_neuron_config.log_spikes.value_or(false);
+    if (neuron.log_spikes != default_log_spikes)
     {
         neuron_node["log_spikes"] << neuron.log_spikes;
     }
-    if (neuron.log_potential)
+    const bool default_log_potential =
+            group.default_neuron_config.log_potential.value_or(false);
+    if (neuron.log_potential != default_log_potential)
     {
         neuron_node["log_potential"] << neuron.log_potential;
     }
