@@ -384,7 +384,7 @@ void sanafe::description_parse_tile_section_yaml(const ryml::Parser &parser,
 {
     std::string tile_name;
     tile_node["name"] >> tile_name;
-    std::pair<int, int> range = {0, 0};
+    std::pair<size_t, size_t> range = {0UL, 0UL};
 
     if (tile_name.find(range_delimiter) != std::string::npos)
     {

@@ -629,7 +629,7 @@ void sanafe::SpikingChip::process_neurons(Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (size_t idx = 0UL; idx < core_list.size();
+    for (int idx = 0; idx < static_cast<int>(core_list.size());
             idx++) // NOLINT(modernize-loop-convert)
     {
         Core &core = core_list[idx];
@@ -676,7 +676,7 @@ void sanafe::SpikingChip::process_messages(Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (size_t idx = 0UL; idx < core_list.size();
+    for (int idx = 0; idx < static_cast<int>(core_list.size());
             idx++) // NOLINT(modernize-loop-convert)
     {
         Core &core = core_list[idx];
@@ -864,7 +864,7 @@ void sanafe::SpikingChip::sim_output_run_summary(
     }
     else
     {
-        INFO("Summary file %s couldn't open.\n", summary_path.c_str());
+        INFO("Summary file %s couldn't open.\n", summary_path.string().c_str());
     }
 }
 
@@ -983,7 +983,7 @@ void sanafe::SpikingChip::forced_updates(const Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (size_t idx = 0UL; idx < core_list.size();
+    for (int idx = 0; idx < static_cast<int>(core_list.size());
             idx++) // NOLINT(modernize-loop-convert)
     {
         Core &core = core_list[idx];
@@ -1401,7 +1401,7 @@ void sanafe::SpikingChip::sim_reset_measurements()
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (size_t idx = 0UL; idx < tiles.size();
+    for (int idx = 0; idx < static_cast<int>(tiles.size());
             idx++) // NOLINT(modernize-loop-convert)
     {
         Tile &t = tiles[idx];
