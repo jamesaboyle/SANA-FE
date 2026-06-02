@@ -273,6 +273,7 @@ if(PYTHON_BUILD_ENABLED)
     )
 
     target_link_libraries(sanafecpp PRIVATE pybind11::pybind11)
+    target_link_libraries(sanafecpp PRIVATE Python::Module)
     target_link_libraries(sanafecpp PUBLIC ryml::ryml)
     target_link_libraries(sanafecpp PUBLIC booksim)
     target_link_libraries(sanafecpp PRIVATE ${CMAKE_DL_LIBS})
