@@ -67,7 +67,7 @@ inline void plugin_dlclose(void *handle)
 {
     dlclose(handle);
 }
-inline std::string plugin_dlerror()
+[[maybe_unused]] inline std::string plugin_dlerror()
 {
     const char *err = dlerror();
     return (err != nullptr) ? std::string(err) : std::string();
