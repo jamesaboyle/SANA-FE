@@ -204,7 +204,7 @@ void sanafe::yaml_parse_pipeline_entry(const ryml::Parser &parser,
     // Parse the same entry for each unit in the range
     // Note: We re-parse the YAML node for each iteration rather than
     // copying objects for simplicity, as the iteration count is typically small
-    for (int i = range.first; i <= range.second; ++i)
+    for (size_t i = range.first; i <= range.second; ++i)
     {
         // Generate unique name for each unit in the range
         std::string unit_name(name);
