@@ -279,7 +279,11 @@ if(PYTHON_BUILD_ENABLED)
     cmake_print_variables(Python_LIBRARIES Python_LIBRARY_DIRS Python_RUNTIME_LIBRARY_DIRS Python_LIBRARY)
 
     target_link_libraries(sanafecpp PRIVATE pybind11::pybind11)
-    target_link_libraries(sanafecpp PRIVATE Python::Module)
+    if(WIN32)
+        # FindPython located the import lib (Python_LIBRARIES) but the
+        # Python::Module target interface comes up empty here, so link directly.
+        target_link_libraries(sanafecpp PRIVATE ${Python_LIBRARIES})
+    endif()
     target_link_libraries(sanafecpp PUBLIC ryml::ryml)
     target_link_libraries(sanafecpp PUBLIC booksim)
     target_link_libraries(sanafecpp PRIVATE ${CMAKE_DL_LIBS})
