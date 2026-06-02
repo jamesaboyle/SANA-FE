@@ -279,9 +279,17 @@ if(PYTHON_BUILD_ENABLED)
     cmake_print_variables(Python_LIBRARIES Python_LIBRARY_DIRS Python_RUNTIME_LIBRARY_DIRS Python_LIBRARY)
 
     target_link_libraries(sanafecpp PRIVATE pybind11::pybind11)
+
+    if(TARGET Python::Module)
+        get_target_property(_pymod_libs Python::Module INTERFACE_LINK_LIBRARIES)
+        cmake_print_variables(_pymod_libs)
+    endif()
+    cmake_print_variables(Python_LIBRARIES Python_LIBRARY_DIRS Python_RUNTIME_LIBRARY_DIRS Python_LIBRARY)
+
     if(WIN32)
-        # FindPython located the import lib (Python_LIBRARIES) but the
-        # Python::Module target interface comes up empty here, so link directly.
+        # Quirk with Windows builds - we have to manually link the libraries
+        #  directoy. I tried a few things, including directly using the Python
+        #  module but this is what worked
         target_link_libraries(sanafecpp PRIVATE ${Python_LIBRARIES})
     endif()
     target_link_libraries(sanafecpp PUBLIC ryml::ryml)
