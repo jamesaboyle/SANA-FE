@@ -44,8 +44,8 @@ public:
     NeuroFEMModel &operator=(const NeuroFEMModel &other) = delete;
     NeuroFEMModel &operator=(NeuroFEMModel &&other) = delete;
 
-    void set_attribute_hw(const std::string &param_name,
-            const sanafe::ModelAttribute &param) override {};
+    void set_attribute_hw(const std::string & /*param_name*/,
+            const sanafe::ModelAttribute & /*param*/) override {};
     void set_attribute_neuron(size_t neuron_address,
             const std::string &param_name,
             const sanafe::ModelAttribute &param) override;
@@ -91,7 +91,7 @@ public:
 
 private:
     std::vector<NeuroFEMNeuron> neurons{};
-    std::map<int, int> synapse_to_compartment{};
+    std::map<size_t, size_t> synapse_to_compartment{};
 
     sanafe::NeuronStatus process_fem(NeuroFEMNeuron &n);
     void check_compartments();
@@ -118,7 +118,8 @@ void NeuroFEMModel::set_attribute_edge(const size_t synapse_address,
     {
         // Attributes for mapped connections/synapses
         int compartment = static_cast<int>(param);
-        synapse_to_compartment[synapse_address] = compartment;
+        synapse_to_compartment[synapse_address] =
+                static_cast<size_t>(compartment);
         TRACE1(PLUGINS, "mapping synapse:%zu to compartment:%d\n",
                 synapse_address, compartment);
         if ((compartment < 0) || (compartment > 1))
