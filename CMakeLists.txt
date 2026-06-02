@@ -270,7 +270,6 @@ if(PYTHON_BUILD_ENABLED)
         ${SOURCE_FILES}
     )
 
-    target_link_libraries(sanafecpp PRIVATE ${PYTHON_LIBRARIES})
     target_link_libraries(sanafecpp PRIVATE pybind11::pybind11)
     target_link_libraries(sanafecpp PUBLIC ryml::ryml)
     target_link_libraries(sanafecpp PUBLIC booksim)
