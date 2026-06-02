@@ -269,14 +269,6 @@ if(PYTHON_BUILD_ENABLED)
         sanafecpp
         ${SOURCE_FILES}
     )
-    if(WIN32)
-        # Quirk with Windows builds - we have to manually link the libraries
-        #  directory
-        target_link_libraries(sanafecpp PRIVATE ${Python_LIBRARIES})
-        message(STATUS "Linking manually for Windows..")
-        get_target_property(_sanafe_libs sanafecpp LINK_LIBRARIES)
-        cmake_print_variables(_sanafe_libs)
-    endif()
     target_link_libraries(sanafecpp PUBLIC ryml::ryml)
     target_link_libraries(sanafecpp PUBLIC booksim)
     target_link_libraries(sanafecpp PRIVATE ${CMAKE_DL_LIBS})

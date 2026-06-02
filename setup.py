@@ -31,7 +31,7 @@ class CMakeBuild(build_ext):
         print("Source directory:", ext.sourcedir)
         print("External directory:", extdir)
 
-        jobs = os.getenv('CMAKE_BUILD_PARALLEL_LEVEL', '1')  # Default to single-threaded build
+        jobs = os.getenv('CMAKE_BUILD_PARALLEL_LEVEL', str(os.cpu_count() or 1))
         # Check for -j option
         if '-j' in sys.argv:
             # Find the index of '-j' and get the following number
@@ -53,7 +53,7 @@ class CMakeBuild(build_ext):
                       "-DBUILD_WHEEL=ON"]
         print(f"CMake Arguments: {cmake_args}")
         cfg = "Debug" if self.debug else "Release"
-        build_args = ["--config", cfg, "-j 10"]
+        build_args = ["--config", cfg, "-j", jobs]
 
         if platform.system() == "Windows":
             plat_name = self.plat_name
