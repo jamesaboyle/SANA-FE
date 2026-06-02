@@ -305,7 +305,7 @@ std::pair<size_t, size_t> sanafe::yaml_parse_range(const std::string &range_str)
         range_first = std::stoull(first_str);
         range_last = std::stoull(last_str);
     }
-    catch (const std::exception &e)
+    catch (const std::exception &)
     {
         throw std::runtime_error("Invalid range string, failed to convert");
     }

@@ -69,7 +69,7 @@ int main(int argc, const char *argv[])
         const sanafe::RunData run_summary = hw.sim(
                 required_args.timesteps_to_execute, optional_flags.timing_model,
                 optional_flags.scheduler_threads, trace_flags,
-                optional_flags.output_dir);
+                optional_flags.output_dir.string());
 
         INFO("Closing Booksim2 library\n");
         booksim_close();

@@ -1088,7 +1088,7 @@ void sanafe::yaml_write_network(const std::filesystem::path &path,
         {
             tree = ryml::parse_in_arena(existing_content.c_str());
         }
-        catch (const std::exception &e)
+        catch (const std::exception &)
         {
             // Check for invalid YAML in the existing file (it may not even be
             //  a YAML file at all). In this case, we should warn the user and
@@ -1277,7 +1277,7 @@ ryml::NodeRef sanafe::yaml_serialize_neuron_group(ryml::NodeRef parent,
 }
 
 ryml::NodeRef sanafe::yaml_serialize_neuron_run(ryml::NodeRef neurons_node,
-        const std::tuple<int, int> &neuron_run, const NeuronGroup &group,
+        const std::tuple<size_t, size_t> &neuron_run, const NeuronGroup &group,
         std::list<std::string> &strings)
 {
     auto [start_offset, end_offset] = neuron_run;
@@ -1453,7 +1453,7 @@ void sanafe::yaml_write_mappings_file(const std::filesystem::path &path,
         {
             tree = ryml::parse_in_arena(existing_content.c_str());
         }
-        catch (const std::runtime_error &e)
+        catch (const std::runtime_error &)
         {
             // Check for invalid YAML in the existing file (it may not even be
             //  a YAML file at all). In this case, we should warn the user and

@@ -165,14 +165,14 @@ std::string sanafe::PipelineUnit::get_attribute_help(
 }
 
 void sanafe::PipelineUnit::set_attributes_hw(
-        std::string unit_name, const ModelInfo &model)
+        std::string unit_name, const ModelInfo &model_info)
 {
-    model_attributes = model.model_attributes;
-    plugin_lib = model.plugin_library_path;
+    model_attributes = model_info.model_attributes;
+    plugin_lib = model_info.plugin_library_path;
     name = std::move(unit_name);
-    log_energy = model.log_energy;
-    log_latency = model.log_latency;
-    update_every_timestep = model.update_every_timestep;
+    log_energy = model_info.log_energy;
+    log_latency = model_info.log_latency;
+    update_every_timestep = model_info.update_every_timestep;
 
     synapse_set_default_attributes();
     dendrite_set_default_attributes();

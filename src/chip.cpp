@@ -629,14 +629,14 @@ void sanafe::SpikingChip::process_neurons(Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (auto idx : core_list)
+    for (size_t idx = 0UL; idx < core_list.size(); idx++)
     {
-        for (MappedNeuron &n : idx.get().neurons)
+        Core &core = core_list[idx];
+        for (MappedNeuron &n : core.neurons)
         {
             process_neuron(ts, n);
         }
 
-        Core &core = idx;
         // Account for any remaining neuron processing
         const bool placeholder_event =
                 (core.next_message_generation_delay != 0.0);
@@ -675,12 +675,12 @@ void sanafe::SpikingChip::process_messages(Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (auto idx : core_list)
+    for (size_t idx = 0UL; idx < core_list.size(); idx++)
     {
+        Core &core = core_list[idx];
 #ifdef HAVE_OPENMP
         TRACE3(CHIP, "omp thread:%d\n", omp_get_thread_num());
 #endif
-        Core &core = idx;
         TRACE1(CHIP, "Processing %zu message(s) for cid:%zu\n",
                 core.messages_in.size(), core.id);
         for (auto &m_ref : core.messages_in)
@@ -981,9 +981,9 @@ void sanafe::SpikingChip::forced_updates(const Timestep &ts)
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (auto idx : core_list)
+    for (size_t idx = 0UL; idx < core_list.size(); idx++)
     {
-        Core &core = idx;
+        Core &core = core_list[idx];
         for (MappedNeuron &n : core.neurons)
         {
             // We cache whether to update one or more synapse units for each
@@ -1398,8 +1398,9 @@ void sanafe::SpikingChip::sim_reset_measurements()
 #ifdef HAVE_OPENMP
 #pragma omp parallel for schedule(dynamic)
 #endif
-    for (auto &t : tiles)
+    for (size_t idx = 0UL; idx < tiles.size(); idx++)
     {
+        Tile &t = tiles[idx];
         // Reset tile
         t.energy = 0.0;
         t.hops = 0;

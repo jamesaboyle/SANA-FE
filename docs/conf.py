@@ -1,6 +1,6 @@
 project = 'SANA-FE'
 author = 'James Boyle'
-release = '2.2.3'
+release = '2.2.4'
 
 extensions = [
     'sphinx.ext.autodoc',

@@ -168,7 +168,9 @@ void sanafe::yaml_merge_or_create_hardware_unit(CoreConfiguration &parent_core,
                                 model_details.plugin_library_path)
                 {
                     INFO("Warning: overwriting plugin path:%s\n",
-                            model_details.plugin_library_path.value().c_str());
+                            model_details.plugin_library_path.value()
+                                    .string()
+                                    .c_str());
                 }
                 hw.model_info.plugin_library_path =
                         model_details.plugin_library_path;
@@ -298,14 +300,14 @@ void sanafe::description_parse_core_section_yaml(const ryml::Parser &parser,
 {
     auto core_name =
             yaml_required_field<std::string>(parser, core_node, "name");
-    std::pair<int, int> core_range = {0, 0};
+    std::pair<size_t, size_t> core_range = {0UL, 0UL};
 
     if (core_name.find(range_delimiter) != std::string::npos)
     {
         core_range = yaml_parse_range(core_name);
     }
 
-    for (int c = core_range.first; c <= core_range.second; c++)
+    for (size_t c = core_range.first; c <= core_range.second; c++)
     {
         const std::string name = core_name.substr(0, core_name.find('[')) +
                 '[' + std::to_string(c) + ']';

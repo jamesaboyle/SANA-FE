@@ -137,23 +137,24 @@ std::string sanafe::Neuron::info() const
 }
 
 sanafe::NeuronGroup &sanafe::SpikingNetwork::create_neuron_group(
-        const std::string name, const size_t neuron_count,
+        const std::string group_name, const size_t neuron_count,
         const NeuronConfiguration &default_config)
 {
-    const bool group_exists_already = groups.find(name) != groups.end();
+    const bool group_exists_already = groups.find(group_name) != groups.end();
     if (group_exists_already)
     {
-        const std::string error = "Group: " + name + " already exists in SNN.";
+        const std::string error =
+                "Group: " + group_name + " already exists in SNN.";
         INFO("Error: %s", error.c_str());
         throw std::invalid_argument(error);
     }
 
-    groups.emplace(
-            name, NeuronGroup(name, *this, neuron_count, default_config));
-    TRACE1(NET, "Created neuron group gid:%s with %zu neurons\n", name.c_str(),
-            neuron_count);
+    groups.emplace(group_name,
+            NeuronGroup(group_name, *this, neuron_count, default_config));
+    TRACE1(NET, "Created neuron group gid:%s with %zu neurons\n",
+            group_name.c_str(), neuron_count);
 
-    return groups.at(name);
+    return groups.at(group_name);
 }
 
 size_t sanafe::SpikingNetwork::update_mapping_count()
@@ -199,22 +200,23 @@ sanafe::SpikingNetwork sanafe::load_net(const std::filesystem::path &path,
     network_fp.open(path);
     if (network_fp.fail())
     {
-        const std::string error = "Error: Network file: failed to open (" +
-                std::string(path) + ").";
+        const std::string error =
+                "Error: Network file: failed to open (" + path.string() + ").";
         throw std::invalid_argument(error);
     }
 
     SpikingNetwork net;
     if (use_netlist_format)
     {
-        INFO("Loading network from netlist file (legacy): %s\n", path.c_str());
+        INFO("Loading network from netlist file (legacy): %s\n",
+                path.string().c_str());
         // Fall back to the original netlist based format used by SANA-FE v1.
         //  This is supported mainly for back-compatibility
         net = netlist_parse_file(network_fp, arch);
     }
     else
     {
-        INFO("Loading network from YAML file: %s\n", path.c_str());
+        INFO("Loading network from YAML file: %s\n", path.string().c_str());
         net = yaml_parse_network_file(network_fp, arch);
     }
 
@@ -234,7 +236,7 @@ void sanafe::NeuronGroup::connect_neurons_sparse(NeuronGroup &dest_group,
     size_t edge_idx = 0UL;
     for (auto [source_id, dest_id] : source_dest_id_pairs)
     {
-        TRACE2(NET, "Connecting neurons, neurons.size=%lu\n", neurons.size());
+        TRACE2(NET, "Connecting neurons, neurons.size=%zu\n", neurons.size());
         if (source_id >= neurons.size())
         {
             INFO("source_id:%zu out of range (0 <= id <= %zu).\n", source_id,
@@ -615,7 +617,8 @@ void sanafe::SpikingNetwork::save_netlist(
     std::ofstream out(path);
     if (!out.is_open())
     {
-        INFO("Error: Couldn't open net file to save to: %s\n", path.c_str());
+        INFO("Error: Couldn't open net file to save to: %s\n",
+                path.string().c_str());
         throw std::invalid_argument(
                 "Error: Couldn't open net file to save to.");
     }

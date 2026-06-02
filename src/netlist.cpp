@@ -50,7 +50,7 @@ sanafe::SpikingNetwork sanafe::netlist_parse_file(
         TRACE1(DESCRIPTION, "Parsing line: %s\n", line.c_str());
         netlist_get_fields(fields, line);
 
-        TRACE1(DESCRIPTION, "%ld fields.\n", fields.size());
+        TRACE1(DESCRIPTION, "%zu fields.\n", fields.size());
 
 #if (DEBUG_LEVEL_DESCRIPTION > 0)
         for (auto &f : fields)
@@ -195,7 +195,7 @@ void sanafe::netlist_read_network_entry(
 
     if (fields.size() < 2)
     {
-        INFO("Error: fields < 2 (%ld)", fields.size());
+        INFO("Error: fields < 2 (%zu)", fields.size());
     }
 
     if (entry_type == 'g')
@@ -476,8 +476,8 @@ void sanafe::netlist_read_neuron(const std::vector<std::string_view> &fields,
     if (neuron_id >= group.neurons.size())
     {
         INFO("Error: Line %d: Trying to access neuron "
-             "(%s.%lu) but group %s only "
-             "allocates %lu neuron(s).\n",
+             "(%s.%zu) but group %s only "
+             "allocates %zu neuron(s).\n",
                 line_number, group.name.c_str(), neuron_id, group.name.c_str(),
                 group.neurons.size());
         throw std::invalid_argument("Invalid neuron id");
@@ -531,8 +531,8 @@ void sanafe::netlist_read_edge(const std::vector<std::string_view> &fields,
     if (neuron_id >= group.neurons.size())
     {
         INFO("Error: Line %d: Trying to access neuron "
-             "(%s.%lu) but group %s only "
-             "allocates %lu neuron(s).\n",
+             "(%s.%zu) but group %s only "
+             "allocates %zu neuron(s).\n",
                 line_number, group.name.c_str(), neuron_id, group.name.c_str(),
                 group.neurons.size());
         throw std::invalid_argument("Invalid neuron id");
@@ -547,13 +547,13 @@ void sanafe::netlist_read_edge(const std::vector<std::string_view> &fields,
     }
     NeuronGroup &dest_group = net.groups.at(dest_group_id);
 
-    TRACE1(DESCRIPTION, "Parsed neuron gid:%s nid:%lu\n", dest_group_id.c_str(),
+    TRACE1(DESCRIPTION, "Parsed neuron gid:%s nid:%zu\n", dest_group_id.c_str(),
             neuron_id);
     if (dest_neuron_id >= dest_group.neurons.size())
     {
         INFO("Error: Line %d: Trying to access neuron "
-             "(%s.%lu) but group %s only "
-             "allocates %lu neurons.\n",
+             "(%s.%zu) but group %s only "
+             "allocates %zu neurons.\n",
                 line_number, dest_group.name.c_str(), dest_neuron_id,
                 dest_group.name.c_str(), dest_group.neurons.size());
         throw std::invalid_argument("Invalid nid");
@@ -583,7 +583,7 @@ void sanafe::netlist_read_mapping(const std::vector<std::string_view> &fields,
             netlist_parse_mapping_field(fields[1]);
     if (tile_id >= arch.tiles.size())
     {
-        INFO("Error: Line %d: Tile (%lu) >= tile count (%lu)\n", line_number,
+        INFO("Error: Line %d: Tile (%zu) >= tile count (%zu)\n", line_number,
                 tile_id, arch.tiles.size());
         throw std::runtime_error("Error: Couldn't parse mapping.");
     }
@@ -592,7 +592,7 @@ void sanafe::netlist_read_mapping(const std::vector<std::string_view> &fields,
 
     if (core_offset >= tile_ptr->cores.size())
     {
-        INFO("Error: Line %d: Core (%lu) >= core count (%lu)\n", line_number,
+        INFO("Error: Line %d: Core (%zu) >= core count (%zu)\n", line_number,
                 core_offset, tile_ptr->cores.size());
         throw std::runtime_error("Error: Couldn't parse mapping.");
     }
@@ -602,8 +602,8 @@ void sanafe::netlist_read_mapping(const std::vector<std::string_view> &fields,
     if (neuron_id >= group.neurons.size())
     {
         INFO("Error: Line %d: Trying to access neuron "
-             "(%s.%lu) but group %s only "
-             "allocates %lu neuron(s).\n",
+             "(%s.%zu) but group %s only "
+             "allocates %zu neuron(s).\n",
                 line_number, group.name.c_str(), neuron_id, group.name.c_str(),
                 group.neurons.size());
         throw std::invalid_argument("Invalid neuron id");
