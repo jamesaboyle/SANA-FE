@@ -56,6 +56,7 @@ class CMakeBuild(build_ext):
         build_args = ["--config", cfg, "-j", jobs]
 
         if platform.system() == "Windows":
+            cmake_args += [f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}"]
             plat_name = self.plat_name
             if plat_name:
                 plat_to_cmake = {
