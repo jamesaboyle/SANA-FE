@@ -96,28 +96,6 @@ foreach(category ARCH CHIP DESCRIPTION MODELS NET PLUGINS PYMODULE SCHEDULER)
     add_compile_definitions(DEBUG_LEVEL_${category}=${DEBUG_LEVEL_${category}})
 endforeach()
 
-# Set conditional defaults based on build type
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    # Release build defaults
-    set(DEFAULT_STANDALONE_DEBUG ON)
-    set(DEFAULT_STANDALONE_SOURCE OFF)  # No source info in release
-    set(DEFAULT_PYTHON_DEBUG OFF)
-    set(DEFAULT_PYTHON_SOURCE OFF)
-else()
-    # Debug/other build defaults
-    set(DEFAULT_STANDALONE_DEBUG ON)
-    set(DEFAULT_STANDALONE_SOURCE ON)
-    set(DEFAULT_PYTHON_DEBUG ON)
-    set(DEFAULT_PYTHON_SOURCE ON)
-endif()
-
-# Define options with conditional defaults
-option(ENABLE_STANDALONE_DEBUG "Enable debug prints for standalone build" ${DEFAULT_STANDALONE_DEBUG})
-option(ENABLE_SOURCE_INFO_STANDALONE "Include source info in standalone debug prints" ${DEFAULT_STANDALONE_SOURCE})
-option(ENABLE_PYTHON_DEBUG "Enable debug prints for Python build" ${DEFAULT_PYTHON_DEBUG})
-option(ENABLE_SOURCE_INFO_PYTHON "Include source info in standalone debug prints" ${DEFAULT_PYTHON_SOURCE})
-cmake_print_variables(ENABLE_STANDALONE_DEBUG ENABLE_SOURCE_INFO_STANDALONE ENABLE_PYTHON_DEBUG ENABLE_SOURCE_INFO_PYTHON)
-
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
 cmake_print_variables(SRC_DIR)
@@ -278,12 +256,12 @@ if(PYTHON_BUILD_ENABLED)
     endif()
     target_link_libraries(sanafecpp PRIVATE Threads::Threads)
 
-    if(ENABLE_PYTHON_DEBUG)
-        target_compile_definitions(sanafecpp PRIVATE ENABLE_DEBUG_PRINTS)
-        if(ENABLE_SOURCE_INFO_PYTHON)
-            target_compile_definitions(sanafecpp PRIVATE ENABLE_SOURCE_INFO)
-        endif()
-    endif()
+    # ENABLE_PYTHON_DEBUG: OFF in Release, ON otherwise
+    # ENABLE_SOURCE_INFO_PYTHON: OFF in Release, ON otherwise
+    target_compile_definitions(sanafecpp PRIVATE
+        $<$<NOT:$<CONFIG:Release>>:ENABLE_DEBUG_PRINTS>
+        $<$<NOT:$<CONFIG:Release>>:ENABLE_SOURCE_INFO>
+    )
     install(TARGETS sanafecpp
         LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}"
         RUNTIME DESTINATION "${CMAKE_SOURCE_DIR}")
@@ -305,12 +283,12 @@ if(STANDALONE_BUILD_ENABLED)
     endif()
     target_link_libraries(sim PRIVATE Threads::Threads)
 
-    if(ENABLE_STANDALONE_DEBUG)
-        target_compile_definitions(sim PRIVATE ENABLE_DEBUG_PRINTS)
-        if(ENABLE_SOURCE_INFO_STANDALONE)
-            target_compile_definitions(sim PRIVATE ENABLE_SOURCE_INFO)
-        endif()
-    endif()
+    # ENABLE_STANDALONE_DEBUG: ON in all configs
+    # ENABLE_SOURCE_INFO_STANDALONE: OFF in Release, ON otherwise
+    target_compile_definitions(sim PRIVATE
+        ENABLE_DEBUG_PRINTS
+        $<$<NOT:$<CONFIG:Release>>:ENABLE_SOURCE_INFO>
+    )
     install(TARGETS sim
         LIBRARY DESTINATION "${CMAKE_SOURCE_DIR}"
         RUNTIME DESTINATION "${CMAKE_SOURCE_DIR}")
@@ -328,7 +306,9 @@ if(ENABLE_TESTING)
     target_include_directories(sanafe PUBLIC
         ${CMAKE_SOURCE_DIR}/src
     )
-    target_compile_definitions(sanafe PRIVATE ENABLE_DEBUG_PRINTS)
+    target_compile_definitions(sanafe PRIVATE
+        $<$<NOT:$<CONFIG:Release>>:ENABLE_DEBUG_PRINTS>
+    )
 
     message(STATUS "Testing enabled")
     include(CTest)
