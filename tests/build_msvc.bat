@@ -1,23 +1,29 @@
 @echo off
-cd /d "%~dp0"
 setlocal
 
-REM VCVARS_PATH is passed in from the Linux side (translated to a Windows path).
-REM Fallback to a sensible default if it's not set.
 if "%VCVARS_PATH%"=="" (
   set "VCVARS_PATH=C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat"
+)
+
+REM %~dp0 is ...\tests\ ; the repo root is one level up.
+pushd "%~dp0.."
+if errorlevel 1 (
+  echo Failed to enter script directory %~dp0
+  exit /b 1
 )
 
 call "%VCVARS_PATH%"
 if errorlevel 1 (
   echo Failed to load MSVC environment from "%VCVARS_PATH%"
+  popd
   exit /b 1
 )
 
-cmake -S . -B build-msvc -G Ninja -DCMAKE_BUILD_TYPE=Release
-if errorlevel 1 exit /b 1
+cmake -S . -B build-msvc -G "Visual Studio 18 2026" -DCMAKE_BUILD_TYPE=Release -DPYTHON_BUILD_ENABLED=OFF
+if errorlevel 1 ( popd & exit /b 1 )
 
 cmake --build build-msvc --parallel 8
-if errorlevel 1 exit /b 1
+set BUILD_RC=%errorlevel%
 
-exit /b 0
+popd
+exit /b %BUILD_RC%

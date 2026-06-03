@@ -31,7 +31,10 @@ def build_msvc(label:, log_file:)
 
   # Hand VCVARS_PATH to the batch script through cmd.exe's environment.
   # cmd.exe /c runs build_msvc.bat on the Windows host; WSL interop bridges it.
-  cmd = %(VCVARS_PATH=#{vcvars.shellescape} cmd.exe /c ../build_msvc.bat)
+  bat_path = File.expand_path("../build_msvc.bat", __dir__)
+  bat_win  = to_windows_path(bat_path)   # -> \\wsl.localhost\Ubuntu\...\build_msvc.bat
+  cmd_exe  = ENV["CMD_EXE"] || "/mnt/c/Windows/System32/cmd.exe"
+  cmd = %(VCVARS_PATH=#{vcvars.shellescape} #{cmd_exe.shellescape} /c #{bat_win.shellescape})
 
   ok = false
   File.open(File.expand_path(log_file), "w") do |log|
