@@ -80,7 +80,7 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DENABLE_TESTING=ON
         -DPYTHON_BUILD_ENABLED=ON
-        -DSTANDALONE_BUILD_ENABLED=ON"
+        -DSTANDALONE_BUILD_ENABLED=ON
         -S ${{ github.workspace }}
 
     - name: Build
