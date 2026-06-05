@@ -304,7 +304,7 @@ endif()
 if(ENABLE_TESTING)
     list(FILTER SOURCE_FILES EXCLUDE REGEX "pymodule.cpp")
     list(FILTER SOURCE_FILES EXCLUDE REGEX "pytrace.cpp")
-    add_library(sanafe SHARED ${SOURCE_FILES} ${HEADER_FILES})
+    add_library(sanafe STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
     if(MSVC)
         target_compile_options(sanafe PRIVATE /W4 /WX /wd4127)
