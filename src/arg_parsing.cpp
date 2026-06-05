@@ -145,7 +145,7 @@ OptionalProgramFlags parse_command_line_flags(
             current_idx += args_consumed;
             flags.total_args_parsed += args_consumed;
         }
-        catch (const std::exception &exc)
+        catch ([[maybe_unused]] const std::exception &exc)
         {
             INFO("Error parsing flag: %s\n", exc.what());
             break;
