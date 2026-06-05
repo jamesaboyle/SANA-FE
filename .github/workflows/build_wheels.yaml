@@ -18,6 +18,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: pypa/cibuildwheel@v3.4.1
+        env:
+          # Install the wheel then run unittest discovery against your test directory.
+          CIBW_TEST_COMMAND: python -m unittest discover -v -s {project}/tests/python -p test.py
+          CIBW_TEST_REQUIRES: ""  # add any test-only pip deps here if needed
 
       - uses: actions/upload-artifact@v4
         with:
