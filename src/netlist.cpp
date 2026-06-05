@@ -250,7 +250,7 @@ std::map<std::string, sanafe::ModelAttribute> sanafe::netlist_parse_attributes(
 
 void sanafe::netlist_parse_attribute_field(const std::string_view &field,
         std::map<std::string, ModelAttribute> &attributes,
-        const int line_number)
+        [[maybe_unused]] const int line_number)
 {
     TRACE1(DESCRIPTION, "Parsing field:%s\n", std::string(field).c_str());
     if ((field.length() < 3))
@@ -334,7 +334,7 @@ char sanafe::netlist_get_closing_char(const char opening_char)
 }
 
 size_t sanafe::netlist_embedded_json_end_pos(const char opening_char,
-        const std::string &all_fields, const int line_number)
+        const std::string &all_fields, [[maybe_unused]] const int line_number)
 {
     const char closing_char = netlist_get_closing_char(opening_char);
     int nested_level = 0;

@@ -619,7 +619,8 @@ std::pair<int, int> sanafe::NocInfo::get_route_xy_increments(
     return std::make_pair(x_increment, y_increment);
 }
 
-void sanafe::schedule_messages_thread(Scheduler &scheduler, const int thread_id)
+void sanafe::schedule_messages_thread(
+        Scheduler &scheduler, [[maybe_unused]] const int thread_id)
 {
     while (!scheduler.should_stop)
     {

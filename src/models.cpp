@@ -230,9 +230,9 @@ void sanafe::MultiTapModel1D::input_current(
     TRACE2(MODELS, "Adding current:%lf to tap %d\n", current, tap);
 }
 
-sanafe::PipelineResult sanafe::MultiTapModel1D::update(size_t neuron_address,
-        std::optional<double> current, std::optional<size_t> synapse_address,
-        const long int simulation_time)
+sanafe::PipelineResult sanafe::MultiTapModel1D::update(
+        [[maybe_unused]] size_t neuron_address, std::optional<double> current,
+        std::optional<size_t> synapse_address, const long int simulation_time)
 {
     while (timesteps_simulated < simulation_time)
     {
@@ -868,7 +868,8 @@ void sanafe::TrueNorthModel::reset()
     }
 }
 
-sanafe::PipelineResult sanafe::InputModel::update(const size_t neuron_address,
+sanafe::PipelineResult sanafe::InputModel::update(
+        [[maybe_unused]] const size_t neuron_address,
         std::optional<double> current_in, const long int simulation_time)
 {
     // This models a dummy input node

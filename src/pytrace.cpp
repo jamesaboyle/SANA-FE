@@ -2,6 +2,7 @@
 //  This work was produced under contract #2317831 to National Technology and
 //  Engineering Solutions of Sandia, LLC which is under contract
 //  No. DE-NA0003525 with the U.S. Department of Energy.
+#include <algorithm>
 #include <ios>
 #include <map>
 #include <pybind11/gil.h>

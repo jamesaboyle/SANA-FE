@@ -82,17 +82,17 @@ int main(int argc, const char *argv[])
 
         return 0;
     }
-    catch (const sanafe::YamlDescriptionParsingError &exc)
+    catch ([[maybe_unused]] const sanafe::YamlDescriptionParsingError &exc)
     {
         INFO("%s", exc.what());
         return 1;
     }
-    catch (const std::runtime_error &exc)
+    catch ([[maybe_unused]] const std::runtime_error &exc)
     {
         INFO("Error: runtime exception thrown: %s\n", exc.what());
         return 1;
     }
-    catch (const std::invalid_argument &exc)
+    catch ([[maybe_unused]] const std::invalid_argument &exc)
     {
         INFO("Error: invalid argument thrown: %s\n", exc.what());
         return 1;
