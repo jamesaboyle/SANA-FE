@@ -24,5 +24,6 @@ target_compile_definitions(unit PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(unit
+  DISCOVERY_MODE PRE_TEST
   PROPERTIES LABELS "dev;ci;unit"
 )
