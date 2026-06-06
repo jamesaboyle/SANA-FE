@@ -1219,6 +1219,7 @@ TEST(YamlSnnTest, WriteNetwork_EmptyNetworkName)
     EXPECT_TRUE(content.find("name: \" \"") != std::string::npos ||
             content.find("name: ' '") != std::string::npos);
 
+    file.close();
     std::filesystem::remove(output_path);
 }
 
