@@ -19,7 +19,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-cmake -S . -B build-msvc -G "Visual Studio 18 2026" -DCMAKE_BUILD_TYPE=Release -DPYTHON_BUILD_ENABLED=OFF
+cmake -S . -B build-msvc -G "Visual Studio 18 2026" -DCMAKE_BUILD_TYPE=Release -DPYTHON_BUILD_ENABLED=OFF -DENABLE_TESTING=ON
 if errorlevel 1 ( popd & exit /b 1 )
 
 cmake --build build-msvc --parallel 8
