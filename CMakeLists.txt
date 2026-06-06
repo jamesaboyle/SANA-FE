@@ -323,6 +323,7 @@ if(ENABLE_TESTING)
     )
 
     message(STATUS "Testing enabled")
+    enable_testing()
     include(CTest)
     add_subdirectory(tests)
 
