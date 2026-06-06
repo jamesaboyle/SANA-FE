@@ -1082,7 +1082,7 @@ TEST(YamlSnnTest, ParseMappingSection_NotSequenceThrows)
 {
     std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
-            sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
+            sanafe::load_arch((path / "arch" / "example_chip.yaml").string());
 
     const std::string yaml = R"(
 network:
@@ -1198,7 +1198,7 @@ TEST(YamlSnnTest, WriteNetwork_EmptyNetworkName)
 {
     std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
-            sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
+            sanafe::load_arch((path / "arch" / "example_chip.yaml").string());
 
     sanafe::SpikingNetwork net("");
     auto &group = net.create_neuron_group("TestGroup", 1, {});
