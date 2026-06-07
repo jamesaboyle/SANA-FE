@@ -1,7 +1,6 @@
-#include <gtest/gtest.h>
-#include <stdexcept>
+// NOLINTBEGIN(cert-dcl59-cpp, fuchsia-statically-constructed-objects, google-build-namespaces, readability-identifier-naming, readability-named-parameter)
+#include <gtest/gtest.h> // NOLINT(build/include_subdir)
 #include <string>
-#include <vector>
 
 #include "arch.hpp"
 #include "network.hpp"
@@ -29,6 +28,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_Valid)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(edge_description, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     auto [src, tgt] = sanafe::description_parse_edge_description(
             edge_description, parser, node);
@@ -48,6 +48,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_MissingDotThrows)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(placeholder_yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::description_parse_edge_description(
                          "A -> B.2", parser, node),
@@ -67,6 +68,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_ExtremeWhitespace)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(placeholder_yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     auto [src, tgt] = sanafe::description_parse_edge_description(
             "\n\t  A.1  \r\n  ->  \t\n  B.2  \r\n\t", parser, node);
@@ -90,6 +92,7 @@ TEST(YamlSnnTest, CountNeurons_WithRangesAndSingles)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     ryml::Tree tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     size_t count = sanafe::description_count_neurons(parser, node);
     EXPECT_EQ(count, 3 + 1 + 3); // 0,1,2 + 5 + 10,11,12
@@ -106,6 +109,7 @@ invalid: stuff
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
     EXPECT_THROW(sanafe::description_count_neurons(parser, node),
             sanafe::YamlDescriptionParsingError);
 }
@@ -122,6 +126,7 @@ TEST(YamlSnnTest, ParseNeuronSimAttributesListOfMapsFlow)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
     auto config = sanafe::yaml_parse_neuron_attributes(parser, node);
     EXPECT_EQ(config.log_spikes, true);
     EXPECT_EQ(config.log_potential, true);
@@ -141,6 +146,7 @@ log_potential: False
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
     auto config = sanafe::yaml_parse_neuron_attributes(parser, node);
     EXPECT_EQ(config.log_spikes, true);
     EXPECT_EQ(config.log_potential, false);
@@ -159,6 +165,7 @@ TEST(YamlSnnTest, ParseNeuronSimAttributesListOfMapsInline)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
     auto config = sanafe::yaml_parse_neuron_attributes(parser, node);
     EXPECT_EQ(config.log_spikes, true);
     EXPECT_EQ(config.log_potential, true);
@@ -178,6 +185,7 @@ TEST(YamlSnnTest, ParseNeuronSimAttributesMapInline)
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
     auto config = sanafe::yaml_parse_neuron_attributes(parser, node);
+    // NOLINTEND(misc-include-cleaner)
     EXPECT_EQ(config.log_spikes, true);
     EXPECT_EQ(config.log_potential, false);
     // Other attributes should be unset
@@ -205,6 +213,7 @@ TEST(YamlSnnTest, ParseFullNetworkSection)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     sanafe::SpikingNetwork net =
             sanafe::yaml_parse_network_section(parser, node);
@@ -250,6 +259,7 @@ TEST(YamlSnnTest, ParseNetworkSection_InvalidFormatThrows)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -276,6 +286,7 @@ TEST(YamlSnnTest, ParseMultipleNetworks)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -348,6 +359,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_NoArrowThrows)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(edge_description, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::description_parse_edge_description(
                          edge_description, parser, node),
@@ -364,6 +376,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_HyperedgeNoNeuronOffset)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(edge_description, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
     auto [src, tgt] = sanafe::description_parse_edge_description(
             edge_description, parser, node);
 
@@ -383,6 +396,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_WithWhitespace)
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(edge_description, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
     auto [src, tgt] = sanafe::description_parse_edge_description(
             edge_description, parser, node);
 
@@ -398,10 +412,12 @@ TEST(YamlSnnTest, CountNeurons_MapFormatThrows)
 0:
   1:
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::description_count_neurons(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -413,10 +429,12 @@ TEST(YamlSnnTest, CountNeurons_NestedMapInList)
 - 0: {attr: value}
 - 1: {attr: value}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     size_t count = sanafe::description_count_neurons(parser, node);
     EXPECT_EQ(count, 2);
@@ -429,10 +447,12 @@ synapse_hw_name: syn_unit_1
 dendrite_hw_name: dend_unit_1
 soma_hw_name: soma_unit_1
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     auto config = sanafe::yaml_parse_neuron_attributes(parser, node);
     EXPECT_EQ(config.default_synapse_hw_name, "syn_unit_1");
@@ -449,11 +469,12 @@ dendrite:
 soma:
   soma_specific: 3.0
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
-
+    // NOLINTEND(misc-include-cleaner)
     auto config = sanafe::yaml_parse_neuron_attributes(parser, node);
 
     ASSERT_TRUE(config.model_attributes.find("shared_attr") !=
@@ -486,11 +507,12 @@ TEST(YamlSnnTest, ParseNeuronSection_InvalidNeuronId)
         - 5: {weight: 1.0}
   edges: []
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
-
+    // NOLINTEND(misc-include-cleaner)
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             std::out_of_range);
 }
@@ -501,11 +523,12 @@ TEST(YamlSnnTest, ParseNetworkSection_MissingGroupsThrows)
   name: example
   edges: []
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
-
+    // NOLINTEND(misc-include-cleaner)
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
 }
@@ -519,10 +542,12 @@ TEST(YamlSnnTest, ParseNetworkSection_MissingEdgesThrows)
       neurons:
         - 0
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -539,10 +564,12 @@ TEST(YamlSnnTest, ParseNeuronConnection_InvalidSourceGroup)
   edges:
     - Invalid.0 -> Output.0: {}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -559,10 +586,12 @@ TEST(YamlSnnTest, ParseNeuronConnection_InvalidTargetGroup)
   edges:
     - Input.0 -> Invalid.0: {}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -582,11 +611,12 @@ TEST(YamlSnnTest, ParseNeuronConnection_OutOfBoundsNeuronId)
   edges:
     - Input.5 -> Output.0: {}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
-
+    // NOLINTEND(misc-include-cleaner)
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
 }
@@ -605,11 +635,12 @@ TEST(YamlSnnTest, ParseHyperedge_NoTypeThrows)
   edges:
     - Input -> Output: {weight: 1.0}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
-
+    // NOLINTEND(misc-include-cleaner)
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
 }
@@ -628,10 +659,12 @@ TEST(YamlSnnTest, ParseHyperedge_InvalidTypeThrows)
   edges:
     - Input -> Output: {type: invalid_type}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -655,10 +688,12 @@ TEST(YamlSnnTest, ParseEdgeAttributes_UnitSpecific)
         dendrite:
           delay: 2
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     sanafe::SpikingNetwork net =
             sanafe::yaml_parse_network_section(parser, node);
@@ -685,9 +720,11 @@ network:
 mappings:
   - InvalidGroup.0: {core: 0.0}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
+    // NOLINTEND(misc-include-cleaner)
 
     auto snn = sanafe::yaml_parse_network_section(parser, tree["network"]);
     EXPECT_THROW(sanafe::description_parse_mapping_section_yaml(
@@ -712,8 +749,10 @@ network:
 mappings:
   - Input.0: {core: 999.0}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
+    // NOLINTEND(misc-include-cleaner)
     auto tree = parse_yaml_snippet(yaml, parser);
 
     auto snn = sanafe::yaml_parse_network_section(parser, tree["network"]);
@@ -739,9 +778,12 @@ network:
 mappings:
   - Input.0..2: {core: 0.0}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
+    // NOLINTEND(misc-include-cleaner)
+
 
     sanafe::SpikingNetwork net =
             sanafe::yaml_parse_network_section(parser, tree["network"]);
@@ -761,10 +803,12 @@ TEST(YamlSnnTest, ParseHyperedgeType_FromSequence)
 - type: dense
 - weight: [1.0, 2.0]
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     std::string type = sanafe::description_parse_hyperedge_type(parser, node);
     EXPECT_EQ(type, "dense");
@@ -794,10 +838,12 @@ TEST(YamlSnnTest, ParseConv2dHyperedge_AllParameters)
         stride_width: 1
         weight: [1.0, 2.0, 3.0, 4.0]
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_NO_THROW(sanafe::yaml_parse_network_section(parser, node));
 }
@@ -818,10 +864,12 @@ TEST(YamlSnnTest, ParseDenseHyperedge_NonListAttributeThrows)
         type: dense
         weight: 1.0
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -843,10 +891,12 @@ TEST(YamlSnnTest, ParseSparseHyperedge_InvalidPairFormat)
         type: sparse
         source_target_pairs: [[0, 1, 2]]
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -868,10 +918,12 @@ TEST(YamlSnnTest, ParseSparseHyperedge_NonListPairsThrows)
         type: sparse
         source_target_pairs: "not a list"
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -893,10 +945,12 @@ TEST(YamlSnnTest, ParseSparseHyperedge_InvalidPairTypeThrows)
         type: sparse
         source_target_pairs: [0]
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -1033,10 +1087,12 @@ TEST(YamlSnnTest, ParseNeuronGroup_EmptyName)
         - 0
   edges: []
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_NO_THROW(sanafe::yaml_parse_network_section(parser, node));
 }
@@ -1062,9 +1118,11 @@ mappings:
       dendrite: dend1
       soma: soma1
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
+    // NOLINTEND(misc-include-cleaner)
 
     sanafe::SpikingNetwork net =
             sanafe::yaml_parse_network_section(parser, tree["network"]);
@@ -1095,9 +1153,11 @@ network:
 mappings:
   not_a_sequence: value
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
+    // NOLINTEND(misc-include-cleaner)
 
     sanafe::SpikingNetwork net =
             sanafe::yaml_parse_network_section(parser, tree["network"]);
@@ -1125,9 +1185,11 @@ mappings:
   - Input.0: {core: 0.0}
     Input.1: {core: 0.1}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
+    // NOLINTEND(misc-include-cleaner)
 
     sanafe::SpikingNetwork net =
             sanafe::yaml_parse_network_section(parser, tree["network"]);
@@ -1148,10 +1210,12 @@ TEST(YamlSnnTest, ParseEdgesSection_NotSequenceThrows)
   edges:
     not_a_list: value
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -1167,10 +1231,12 @@ TEST(YamlSnnTest, ParseNeuronSection_NotSequenceThrows)
         not_a_list: value
   edges: []
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -1184,10 +1250,12 @@ TEST(YamlSnnTest, ParseNeuronGroupSection_NotSequenceThrows)
     not_a_list: value
   edges: []
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             sanafe::YamlDescriptionParsingError);
@@ -1389,9 +1457,11 @@ network:
 mappings:
   - Input: {core: 0.0}
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
+    // NOLINTEND(misc-include-cleaner)
 
     sanafe::SpikingNetwork net =
             sanafe::yaml_parse_network_section(parser, tree["network"]);
@@ -1429,10 +1499,12 @@ TEST(YamlSnnTest, Conv2D_WrongOutputNeuronCount)
         stride_width: 1
         weight: [1.0, 2.0, 3.0, 4.0]
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             std::invalid_argument);
@@ -1462,11 +1534,14 @@ TEST(YamlSnnTest, Conv2D_WrongInputNeuronCount)
         stride_width: 1
         weight: [1.0, 2.0, 3.0, 4.0]
 )";
+    // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
     auto tree = parse_yaml_snippet(yaml, parser);
     auto node = tree.rootref();
+    // NOLINTEND(misc-include-cleaner)
 
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             std::invalid_argument);
 }
+// NOLINTEND(cert-dcl59-cpp, fuchsia-statically-constructed-objects, google-build-namespaces, readability-identifier-naming, readability-named-parameter)
