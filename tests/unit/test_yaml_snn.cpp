@@ -1,7 +1,11 @@
 #include <gtest/gtest.h> // NOLINT(build/include_subdir)
 
 #include <cstddef>
+#include <filesystem>
 #include <fstream>
+#include <iterator>
+#include <optional>
+#include <stdexcept>
 #include <string>
 
 #include "arch.hpp"
@@ -12,18 +16,18 @@
 // any helper functions go here
 namespace
 {
-ryml::Tree parse_yaml_snippet(
-        const std::string &yaml_text, ryml::Parser &parser)
+// NOLINTBEGIN(misc-include-cleaner)
+ryml::Tree parse_yaml_snippet(std::string &yaml_text, ryml::Parser &parser)
 {
-    ryml::Tree tree = ryml::parse_in_place(
-            &parser, const_cast<char *>(yaml_text.c_str()));
+    ryml::Tree tree = ryml::parse_in_place(&parser, yaml_text.data());
     return tree;
 }
 }
+// NOLINTEND(misc-include-cleaner)
 
 TEST(YamlSnnTest, ParseEdgeDescription_Valid)
 {
-    const std::string edge_description = R"(A.1 -> B.2)";
+    std::string edge_description = R"(A.1 -> B.2)";
     // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     // Enable location tracking for helpful error prints
@@ -43,7 +47,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_Valid)
 
 TEST(YamlSnnTest, ParseEdgeDescription_MissingDotThrows)
 {
-    const std::string placeholder_yaml = R"(p)";
+    std::string placeholder_yaml = R"(p)";
     // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     // Enable location tracking for helpful error prints
@@ -60,10 +64,9 @@ TEST(YamlSnnTest, ParseEdgeDescription_MissingDotThrows)
             sanafe::YamlDescriptionParsingError);
 }
 
-
 TEST(YamlSnnTest, ParseEdgeDescription_ExtremeWhitespace)
 {
-    const std::string placeholder_yaml = R"(p)";
+    std::string placeholder_yaml = R"(p)";
     // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     // Enable location tracking for helpful error prints
@@ -83,7 +86,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_ExtremeWhitespace)
 
 TEST(YamlSnnTest, CountNeurons_WithRangesAndSingles)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 - 0..2
 - 5
 - 10..12
@@ -96,13 +99,13 @@ TEST(YamlSnnTest, CountNeurons_WithRangesAndSingles)
     auto node = tree.rootref();
     // NOLINTEND(misc-include-cleaner)
 
-    size_t count = sanafe::description_count_neurons(parser, node);
+    const auto count = sanafe::description_count_neurons(parser, node);
     EXPECT_EQ(count, 3 + 1 + 3); // 0,1,2 + 5 + 10,11,12
 }
 
 TEST(YamlSnnTest, CountNeurons_InvalidFormatThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 invalid: stuff
 )";
     // NOLINTBEGIN(misc-include-cleaner)
@@ -118,7 +121,7 @@ invalid: stuff
 
 TEST(YamlSnnTest, ParseNeuronSimAttributesListOfMapsFlow)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 - log_spikes: True
 - log_potential: True
 )";
@@ -138,7 +141,7 @@ TEST(YamlSnnTest, ParseNeuronSimAttributesListOfMapsFlow)
 
 TEST(YamlSnnTest, ParseNeuronSimAttributesMapFlow)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 log_spikes: True
 log_potential: False
 )";
@@ -158,7 +161,7 @@ log_potential: False
 
 TEST(YamlSnnTest, ParseNeuronSimAttributesListOfMapsInline)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 [log_spikes: True, log_potential: True]
 )";
     // NOLINTBEGIN(misc-include-cleaner)
@@ -177,7 +180,7 @@ TEST(YamlSnnTest, ParseNeuronSimAttributesListOfMapsInline)
 
 TEST(YamlSnnTest, ParseNeuronSimAttributesMapInline)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 {log_spikes: True, log_potential: False}
 )";
     // NOLINTBEGIN(misc-include-cleaner)
@@ -196,7 +199,7 @@ TEST(YamlSnnTest, ParseNeuronSimAttributesMapInline)
 
 TEST(YamlSnnTest, ParseFullNetworkSection)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: example
   groups:
     - name: Input
@@ -241,7 +244,7 @@ TEST(YamlSnnTest, ParseFullNetworkSection)
 
 TEST(YamlSnnTest, ParseNetworkSection_InvalidFormatThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: example
   groups:
     - name: Input
@@ -269,7 +272,7 @@ TEST(YamlSnnTest, ParseNetworkSection_InvalidFormatThrows)
 
 TEST(YamlSnnTest, ParseMultipleNetworks)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: example[0..2]
   groups:
     - name: Input
@@ -296,8 +299,8 @@ TEST(YamlSnnTest, ParseMultipleNetworks)
 
 TEST(YamlSnnTest, WriteEdgeFormat)
 {
-    sanafe::NeuronAddress src{"A", 1};
-    sanafe::NeuronAddress tgt{"B", 2};
+    const sanafe::NeuronAddress src{"A", 1};
+    const sanafe::NeuronAddress tgt{"B", 2};
     sanafe::Connection conn(0);
     conn.pre_neuron = src;
     conn.post_neuron = tgt;
@@ -307,14 +310,14 @@ TEST(YamlSnnTest, WriteEdgeFormat)
 
 TEST(YamlSnnTest, SerializeNetworkToYaml)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     // FAIL() << "Current path: " << path.string() + "/arch/example_snn.yaml";
     sanafe::Architecture arch =
-            sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
-    sanafe::SpikingNetwork net =
-            sanafe::load_net(path.string() + "/snn/example_snn.yaml", arch);
+            sanafe::load_arch((path / "arch" / "example_chip.yaml").string());
+    const sanafe::SpikingNetwork net = sanafe::load_net(
+            (path / "snn" / "example_snn.yaml").string(), arch);
     // FAIL() << "loaded network\n";
-    std::filesystem::path output_path = path / "tests/output.yaml";
+    const std::filesystem::path output_path = path / "tests/output.yaml";
     // FAIL() << "opening output path: " << output_path.string();
     net.save(output_path);
 
@@ -353,7 +356,7 @@ TEST(YamlSnnTest, SerializeNetworkToYaml)
 
 TEST(YamlSnnTest, ParseEdgeDescription_NoArrowThrows)
 {
-    const std::string edge_description = R"(A.1 B.2)";
+    std::string edge_description = R"(A.1 B.2)";
 
     // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
@@ -370,7 +373,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_NoArrowThrows)
 
 TEST(YamlSnnTest, ParseEdgeDescription_HyperedgeNoNeuronOffset)
 {
-    const std::string edge_description = R"(A -> B)";
+    std::string edge_description = R"(A -> B)";
 
     // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
@@ -390,7 +393,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_HyperedgeNoNeuronOffset)
 
 TEST(YamlSnnTest, ParseEdgeDescription_WithWhitespace)
 {
-    const std::string edge_description = R"(A.1  ->  B.2)";
+    std::string edge_description = R"(A.1  ->  B.2)";
 
     // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
@@ -410,7 +413,7 @@ TEST(YamlSnnTest, ParseEdgeDescription_WithWhitespace)
 
 TEST(YamlSnnTest, CountNeurons_MapFormatThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 0:
   1:
 )";
@@ -427,7 +430,7 @@ TEST(YamlSnnTest, CountNeurons_MapFormatThrows)
 
 TEST(YamlSnnTest, CountNeurons_NestedMapInList)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 - 0: {attr: value}
 - 1: {attr: value}
 )";
@@ -438,13 +441,13 @@ TEST(YamlSnnTest, CountNeurons_NestedMapInList)
     auto node = tree.rootref();
     // NOLINTEND(misc-include-cleaner)
 
-    size_t count = sanafe::description_count_neurons(parser, node);
+    const size_t count = sanafe::description_count_neurons(parser, node);
     EXPECT_EQ(count, 2);
 }
 
 TEST(YamlSnnTest, ParseNeuronAttributes_HardwareUnits)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 synapse_hw_name: syn_unit_1
 dendrite_hw_name: dend_unit_1
 soma_hw_name: soma_unit_1
@@ -464,7 +467,7 @@ soma_hw_name: soma_unit_1
 
 TEST(YamlSnnTest, ParseNeuronAttributes_UnitSpecificModelAttributes)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
 shared_attr: 1.0
 dendrite:
   dend_specific: 2.0
@@ -500,7 +503,7 @@ soma:
 
 TEST(YamlSnnTest, ParseNeuronSection_InvalidNeuronId)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -521,7 +524,7 @@ TEST(YamlSnnTest, ParseNeuronSection_InvalidNeuronId)
 
 TEST(YamlSnnTest, ParseNetworkSection_MissingGroupsThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: example
   edges: []
 )";
@@ -537,7 +540,7 @@ TEST(YamlSnnTest, ParseNetworkSection_MissingGroupsThrows)
 
 TEST(YamlSnnTest, ParseNetworkSection_MissingEdgesThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: example
   groups:
     - name: Input
@@ -557,7 +560,7 @@ TEST(YamlSnnTest, ParseNetworkSection_MissingEdgesThrows)
 
 TEST(YamlSnnTest, ParseNeuronConnection_InvalidSourceGroup)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Output
@@ -579,7 +582,7 @@ TEST(YamlSnnTest, ParseNeuronConnection_InvalidSourceGroup)
 
 TEST(YamlSnnTest, ParseNeuronConnection_InvalidTargetGroup)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -601,7 +604,7 @@ TEST(YamlSnnTest, ParseNeuronConnection_InvalidTargetGroup)
 
 TEST(YamlSnnTest, ParseNeuronConnection_OutOfBoundsNeuronId)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -625,7 +628,7 @@ TEST(YamlSnnTest, ParseNeuronConnection_OutOfBoundsNeuronId)
 
 TEST(YamlSnnTest, ParseHyperedge_NoTypeThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -649,7 +652,7 @@ TEST(YamlSnnTest, ParseHyperedge_NoTypeThrows)
 
 TEST(YamlSnnTest, ParseHyperedge_InvalidTypeThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -674,7 +677,7 @@ TEST(YamlSnnTest, ParseHyperedge_InvalidTypeThrows)
 
 TEST(YamlSnnTest, ParseEdgeAttributes_UnitSpecific)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -707,11 +710,11 @@ TEST(YamlSnnTest, ParseEdgeAttributes_UnitSpecific)
 
 TEST(YamlSnnTest, ParseMappingSection_InvalidNeuronGroup)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
-    const std::string yaml = R"(
+    std::string yaml = R"(
 network:
   name: test
   groups:
@@ -736,11 +739,11 @@ mappings:
 
 TEST(YamlSnnTest, ParseMappingSection_OutOfBoundsTile)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
-    const std::string yaml = R"(
+    std::string yaml = R"(
 network:
   name: test
   groups:
@@ -754,8 +757,8 @@ mappings:
     // NOLINTBEGIN(misc-include-cleaner)
     ryml::EventHandlerTree event_handler = {};
     ryml::Parser parser(&event_handler, ryml::ParserOptions().locations(true));
-    // NOLINTEND(misc-include-cleaner)
     auto tree = parse_yaml_snippet(yaml, parser);
+    // NOLINTEND(misc-include-cleaner)
 
     auto snn = sanafe::yaml_parse_network_section(parser, tree["network"]);
     EXPECT_THROW(sanafe::description_parse_mapping_section_yaml(
@@ -765,11 +768,11 @@ mappings:
 
 TEST(YamlSnnTest, ParseMappingSection_NeuronRange)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
-    const std::string yaml = R"(
+    std::string yaml = R"(
 network:
   name: test
   groups:
@@ -786,7 +789,6 @@ mappings:
     auto tree = parse_yaml_snippet(yaml, parser);
     // NOLINTEND(misc-include-cleaner)
 
-
     sanafe::SpikingNetwork net =
             sanafe::yaml_parse_network_section(parser, tree["network"]);
 
@@ -801,7 +803,7 @@ mappings:
 TEST(YamlSnnTest, ParseHyperedgeType_FromSequence)
 {
     // Tests type extraction from a sequence of attributes
-    const std::string yaml = R"(
+    std::string yaml = R"(
 - type: dense
 - weight: [1.0, 2.0]
 )";
@@ -812,13 +814,13 @@ TEST(YamlSnnTest, ParseHyperedgeType_FromSequence)
     auto node = tree.rootref();
     // NOLINTEND(misc-include-cleaner)
 
-    std::string type = sanafe::description_parse_hyperedge_type(parser, node);
+    const auto type = sanafe::description_parse_hyperedge_type(parser, node);
     EXPECT_EQ(type, "dense");
 }
 
 TEST(YamlSnnTest, ParseConv2dHyperedge_AllParameters)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -852,7 +854,7 @@ TEST(YamlSnnTest, ParseConv2dHyperedge_AllParameters)
 
 TEST(YamlSnnTest, ParseDenseHyperedge_NonListAttributeThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -879,7 +881,7 @@ TEST(YamlSnnTest, ParseDenseHyperedge_NonListAttributeThrows)
 
 TEST(YamlSnnTest, ParseSparseHyperedge_InvalidPairFormat)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -906,7 +908,7 @@ TEST(YamlSnnTest, ParseSparseHyperedge_InvalidPairFormat)
 
 TEST(YamlSnnTest, ParseSparseHyperedge_NonListPairsThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -933,7 +935,7 @@ TEST(YamlSnnTest, ParseSparseHyperedge_NonListPairsThrows)
 
 TEST(YamlSnnTest, ParseSparseHyperedge_InvalidPairTypeThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -960,18 +962,19 @@ TEST(YamlSnnTest, ParseSparseHyperedge_InvalidPairTypeThrows)
 
 TEST(YamlSnnTest, ParseNetworkFile_FileNotOpen)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
-    std::ifstream bad_stream; // NOLINT(cert-err58-cpp) intentionally unopened
+    // Intentionally use unopened/bad stream
+    std::ifstream bad_stream; // NOLINT(cppcoreguidelines-init-variables)
     EXPECT_THROW(sanafe::yaml_parse_network_file(bad_stream, arch),
             std::runtime_error);
 }
 TEST(YamlSnnTest, ParseNetworkFile_MissingNetworkSection)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
-    std::filesystem::path test_file =
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path test_file =
             path / "tests" / "missing_network_section.yaml";
 
     // Create temporary file without 'network' section
@@ -996,8 +999,8 @@ mappings: []
 
 TEST(YamlSnnTest, ParseNetworkFile_MissingMappingsSection)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
-    std::filesystem::path test_file =
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path test_file =
             path / "tests" / "missing_mappings_section.yaml";
 
     // Create temporary file without 'mappings' section
@@ -1026,8 +1029,8 @@ network:
 
 TEST(YamlSnnTest, ParseNetworkFile_InvalidTopLevelFormat)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
-    std::filesystem::path test_file = path / "tests/invalid_format.yaml";
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path test_file = path / "tests/invalid_format.yaml";
 
     // Create file with non-map top level (should be a map)
     std::ofstream out(test_file);
@@ -1047,15 +1050,16 @@ TEST(YamlSnnTest, ParseNetworkFile_InvalidTopLevelFormat)
 
 TEST(YamlSnnTest, WriteMappings_NeuronNotMapped)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
-    sanafe::Architecture arch =
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
+    const sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
     sanafe::SpikingNetwork net("test");
     net.create_neuron_group("TestGroup", 1, {});
     // Don't map the neuron
 
-    std::filesystem::path output_path = path / "tests/unmapped_output.yaml";
+    const std::filesystem::path output_path =
+            path / "tests" / "unmapped_output.yaml";
 
     EXPECT_THROW(sanafe::yaml_write_mappings_file(output_path, net),
             std::runtime_error);
@@ -1063,7 +1067,7 @@ TEST(YamlSnnTest, WriteMappings_NeuronNotMapped)
 
 TEST(YamlSnnTest, ParseNeuronGroup_NoNeuronsSection)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: BadGroup
@@ -1081,7 +1085,7 @@ TEST(YamlSnnTest, ParseNeuronGroup_NoNeuronsSection)
 
 TEST(YamlSnnTest, ParseNeuronGroup_EmptyName)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: ""
@@ -1101,11 +1105,11 @@ TEST(YamlSnnTest, ParseNeuronGroup_EmptyName)
 
 TEST(YamlSnnTest, ParseMappingInfo_AllHardwareUnits)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
-    const std::string yaml = R"(
+    std::string yaml = R"(
 network:
   name: test
   groups:
@@ -1140,11 +1144,11 @@ mappings:
 
 TEST(YamlSnnTest, ParseMappingSection_NotSequenceThrows)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch((path / "arch" / "example_chip.yaml").string());
 
-    const std::string yaml = R"(
+    std::string yaml = R"(
 network:
   name: test
   groups:
@@ -1171,11 +1175,11 @@ mappings:
 
 TEST(YamlSnnTest, ParseMapping_MultipleEntriesThrows)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
-    const std::string yaml = R"(
+    std::string yaml = R"(
 network:
   name: test
   groups:
@@ -1203,7 +1207,7 @@ mappings:
 
 TEST(YamlSnnTest, ParseEdgesSection_NotSequenceThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -1225,7 +1229,7 @@ TEST(YamlSnnTest, ParseEdgesSection_NotSequenceThrows)
 
 TEST(YamlSnnTest, ParseNeuronSection_NotSequenceThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -1246,7 +1250,7 @@ TEST(YamlSnnTest, ParseNeuronSection_NotSequenceThrows)
 
 TEST(YamlSnnTest, ParseNeuronGroupSection_NotSequenceThrows)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     not_a_list: value
@@ -1266,7 +1270,7 @@ TEST(YamlSnnTest, ParseNeuronGroupSection_NotSequenceThrows)
 // Additional file-based IO tests, which are slightly more involved
 TEST(YamlSnnTest, WriteNetwork_EmptyNetworkName)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch((path / "arch" / "example_chip.yaml").string());
 
@@ -1278,14 +1282,14 @@ TEST(YamlSnnTest, WriteNetwork_EmptyNetworkName)
     const sanafe::CoreConfiguration &core = tile.cores[0];
     group.neurons[0].map_to_core(core);
 
-    std::filesystem::path output_path =
+    const std::filesystem::path output_path =
             std::filesystem::path(SANAFE_ROOT_PATH) /
             "tests/empty_name_output.yaml";
     EXPECT_NO_THROW(net.save(output_path));
 
     std::ifstream file(output_path);
-    std::string content((std::istreambuf_iterator<char>(file)),
-            std::istreambuf_iterator<char>());
+    const std::string content{std::istreambuf_iterator<char>(file),
+            std::istreambuf_iterator<char>()};
     EXPECT_TRUE(content.find("name: \" \"") != std::string::npos ||
             content.find("name: ' '") != std::string::npos);
 
@@ -1295,7 +1299,7 @@ TEST(YamlSnnTest, WriteNetwork_EmptyNetworkName)
 
 TEST(YamlSnnTest, WriteNetwork_ExistingFileWithInvalidYAML)
 {
-    std::filesystem::path output_path =
+    const std::filesystem::path output_path =
             std::filesystem::path(SANAFE_ROOT_PATH) / "tests" /
             "invalid_yaml.yaml";
 
@@ -1314,7 +1318,7 @@ TEST(YamlSnnTest, WriteNetwork_ExistingFileWithInvalidYAML)
 
 TEST(YamlSnnTest, SerializeNeuronRuns_MultipleRuns)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
@@ -1335,7 +1339,8 @@ TEST(YamlSnnTest, SerializeNeuronRuns_MultipleRuns)
         neuron.map_to_core(core);
     }
 
-    std::filesystem::path output_path = path / "tests/neuron_runs_test.yaml";
+    const std::filesystem::path output_path =
+            path / "tests/neuron_runs_test.yaml";
     net.save(output_path);
 
     // Reload and verify all attributes preserved correctly
@@ -1361,8 +1366,8 @@ TEST(YamlSnnTest, SerializeNeuronRuns_MultipleRuns)
 
 TEST(YamlSnnTest, WriteNetwork_PreservesOtherSections)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
-    std::filesystem::path output_path =
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path output_path =
             path / "tests/preserve_sections_test.yaml";
 
     // Create file with custom section
@@ -1391,8 +1396,8 @@ network:
 
     // Verify custom section preserved and network updated
     std::ifstream file(output_path);
-    std::string content((std::istreambuf_iterator<char>(file)),
-            std::istreambuf_iterator<char>());
+    const std::string content{std::istreambuf_iterator<char>(file),
+            std::istreambuf_iterator<char>()};
     file.close();
 
     EXPECT_TRUE(content.find("custom_section") != std::string::npos);
@@ -1404,8 +1409,8 @@ network:
 
 TEST(YamlSnnTest, WriteMappings_PreservesNetworkSection)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
-    std::filesystem::path output_path =
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path output_path =
             path / "tests/preserve_network_test.yaml";
 
     // Create file with network section
@@ -1425,15 +1430,15 @@ mappings:
 
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
-    sanafe::SpikingNetwork net = sanafe::load_net(output_path, arch);
+    const sanafe::SpikingNetwork net = sanafe::load_net(output_path, arch);
 
     // Save just mappings (which calls yaml_write_mappings_file)
     sanafe::yaml_write_mappings_file(output_path, net);
 
     // Verify network section still exists
     std::ifstream file(output_path);
-    std::string content((std::istreambuf_iterator<char>(file)),
-            std::istreambuf_iterator<char>());
+    const std::string content{std::istreambuf_iterator<char>(file),
+            std::istreambuf_iterator<char>()};
     file.close();
 
     EXPECT_TRUE(content.find("network:") != std::string::npos);
@@ -1444,11 +1449,11 @@ mappings:
 
 TEST(YamlSnnTest, ParseMapping_AllNeuronsInGroup)
 {
-    std::filesystem::path path(SANAFE_ROOT_PATH);
+    const std::filesystem::path path(SANAFE_ROOT_PATH);
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
-    const std::string yaml = R"(
+    std::string yaml = R"(
 network:
   name: test
   groups:
@@ -1479,7 +1484,7 @@ mappings:
 
 TEST(YamlSnnTest, Conv2D_WrongOutputNeuronCount)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input
@@ -1514,7 +1519,7 @@ TEST(YamlSnnTest, Conv2D_WrongOutputNeuronCount)
 
 TEST(YamlSnnTest, Conv2D_WrongInputNeuronCount)
 {
-    const std::string yaml = R"(
+    std::string yaml = R"(
   name: test
   groups:
     - name: Input

@@ -23,9 +23,9 @@ Checks: >
   -cert-dcl59-cpp,
   -readability-identifier-naming,
   -readability-named-parameter,
-  -fuchsia-statically-constructed-objects,
   -cppcoreguidelines-owning-memory,
-  -cert-err58-cpp
+  -cert-err58-cpp,
+  -misc-use-internal-linkage
 
 HeaderFilterRegex: '^sana-fe/tests/unit/.*\.(h|hpp)$'
 
