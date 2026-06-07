@@ -11,6 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4  # v5 does not exist; latest is v4
 
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Build
+        run: cmake --build build
+
       - uses: cpp-linter/cpp-linter-action@v2
         id: linter
         env:
@@ -19,6 +25,7 @@ jobs:
           style: 'file'
           tidy-checks: ''
           thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          database: 'build'
 
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0

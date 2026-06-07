@@ -1,6 +1,5 @@
 #include <gtest/gtest.h> // NOLINT(build/include_subdir)
 
-#include <cstddef>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -441,7 +440,7 @@ TEST(YamlSnnTest, CountNeurons_NestedMapInList)
     auto node = tree.rootref();
     // NOLINTEND(misc-include-cleaner)
 
-    const size_t count = sanafe::description_count_neurons(parser, node);
+    const auto count = sanafe::description_count_neurons(parser, node);
     EXPECT_EQ(count, 2);
 }
 
