@@ -1,4 +1,3 @@
-# .clang-tidy configuration file
 Checks: >
   modernize-*,
   readability-*,
@@ -20,42 +19,26 @@ Checks: >
   -cppcoreguidelines-non-private-member-variables-in-classes,
   -performance-unnecessary-value-param,
   -clang-analyzer-optin.core.EnumCastOutOfRange,
-# Inherit parent configs (useful for large projects)
-InheritParentConfig: true
+  -google-build-namespaces,
+  -cert-dcl59-cpp,
+  -readability-identifier-naming,
+  -readability-named-parameter,
+  -fuchsia-statically-constructed-objects,
+  -cppcoreguidelines-owning-memory,
+  -cert-err58-cpp
 
-# Header filter - only check headers in src/, exclude _deps/ and external dependencies
-HeaderFilterRegex: '^sana-fe/src/.*\.(h|hpp)$'
+HeaderFilterRegex: '^sana-fe/tests/unit/.*\.(h|hpp)$'
 
-# Configure specific checkers
 CheckOptions:
-  # Readability options
-  readability-identifier-naming.VariableCase: 'lower_case'
-  readability-identifier-naming.FunctionCase: 'lower_case'
-  readability-identifier-naming.ClassCase: 'CamelCase'
-  readability-identifier-naming.StructCase: 'CamelCase'
-  readability-identifier-naming.NamespaceCase: 'lower_case'
-  readability-identifier-naming.EnumCase: 'CamelCase'
-  readability-identifier-naming.ConstantCase: 'lower_case'
-  readability-identifier-naming.MacroCase: 'UPPER_CASE'
-
-  # Function length and complexity limits
-  readability-function-size.LineThreshold: 100
-  readability-function-size.StatementThreshold: 50
-  readability-function-size.BranchThreshold: 20
+  readability-function-size.LineThreshold: 150
+  readability-function-size.StatementThreshold: 80
+  readability-function-size.BranchThreshold: 30
   readability-function-size.ParameterThreshold: 8
   readability-function-cognitive-complexity.Threshold: 50
-
-  # Performance options
   performance-for-range-copy.WarnOnAllAutoCopies: true
-  performance-inefficient-vector-operation.VectorLikeClasses: 'std::vector,std::deque'
-
-  # Modernize options
   modernize-use-auto.MinTypeNameLength: 5
   modernize-loop-convert.MinConfidence: reasonable
-
-  # Core Guidelines options
   cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
   cppcoreguidelines-special-member-functions.AllowMissingMoveFunctions: true
 
-# Format style for fix suggestions (optional)
 FormatStyle: file

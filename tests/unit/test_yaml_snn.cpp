@@ -1,5 +1,7 @@
-// NOLINTBEGIN(cert-dcl59-cpp, fuchsia-statically-constructed-objects, google-build-namespaces, readability-identifier-naming, readability-named-parameter)
 #include <gtest/gtest.h> // NOLINT(build/include_subdir)
+
+#include <cstddef>
+#include <fstream>
 #include <string>
 
 #include "arch.hpp"
@@ -962,7 +964,7 @@ TEST(YamlSnnTest, ParseNetworkFile_FileNotOpen)
     sanafe::Architecture arch =
             sanafe::load_arch(path.string() + "/arch/example_chip.yaml");
 
-    std::ifstream bad_stream; // Not opened
+    std::ifstream bad_stream; // NOLINT(cert-err58-cpp) intentionally unopened
     EXPECT_THROW(sanafe::yaml_parse_network_file(bad_stream, arch),
             std::runtime_error);
 }
@@ -1544,4 +1546,3 @@ TEST(YamlSnnTest, Conv2D_WrongInputNeuronCount)
     EXPECT_THROW(sanafe::yaml_parse_network_section(parser, node),
             std::invalid_argument);
 }
-// NOLINTEND(cert-dcl59-cpp, fuchsia-statically-constructed-objects, google-build-namespaces, readability-identifier-naming, readability-named-parameter)
