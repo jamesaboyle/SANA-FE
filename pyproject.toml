@@ -50,4 +50,5 @@ disable = [
     "import-error",
     "no-member",
     "no-name-in-module",
+    "duplicate-code",
 ]
