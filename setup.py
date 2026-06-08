@@ -1,13 +1,13 @@
+"""Build script for sanafe's Python kernel."""
+# pylint: disable=missing-class-docstring, missing-module-docstring
 import os
-import re
 import sys
 import sysconfig
 import platform
 import subprocess
 
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
-from distutils.version import LooseVersion
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=""):
@@ -17,10 +17,12 @@ class CMakeExtension(Extension):
 class CMakeBuild(build_ext):
     def run(self):
         try:
-            out = subprocess.check_output(["cmake", "--version"])
-        except OSError:
-            raise RuntimeError("CMake must be installed to build the following extensions: " +
-                               ", ".join(e.name for e in self.extensions))
+            subprocess.check_output(["cmake", "--version"])
+        except OSError as exc:
+            raise RuntimeError(
+                "CMake must be installed to build the following extensions: " +
+                ", ".join(e.name for e in self.extensions)
+            ) from exc
 
         for ext in self.extensions:
             self.build_extension(ext)
@@ -42,7 +44,8 @@ class CMakeBuild(build_ext):
                 sys.argv.pop(jobs_index)
                 sys.argv.pop(jobs_index - 1)
             except (IndexError, ValueError):
-                print("Warning: -j option requires a positive integer argument, using default number of threads.")
+                print("Warning: -j option requires a positive integer "
+                      "argument, using default number of threads.")
 
         cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir,
                       "-DPYTHON_EXECUTABLE=" + sys.executable,
@@ -72,9 +75,11 @@ class CMakeBuild(build_ext):
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
 
         env = os.environ.copy()
-        env["CXXFLAGS"] = "{} -DVERSION_INFO=\\'{}\\'".format(env.get("CXXFLAGS", ""),
-                                                              self.distribution.get_version())
-        env["CMAKE_BUILD_PARALLEL_LEVEL"] = jobs
+        env["CXXFLAGS"] = (
+            f"{env.get('CXXFLAGS', '')} "
+            f"-DVERSION_INFO=\\'{self.distribution.get_version()}\\'"
+        )
+        env["CMAKE_BUILD_PARALLEL_LEVEL"] = str(jobs)
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         env["PYTHON_EXECUTABLE"] = sys.executable
@@ -85,5 +90,5 @@ class CMakeBuild(build_ext):
 
 setup(
     ext_modules=[CMakeExtension("sanafe")],
-    cmdclass=dict(build_ext=CMakeBuild),
+    cmdclass={"build_ext": CMakeBuild}
 )
