@@ -28,6 +28,7 @@
 #include <pybind11/stl.h> // NOLINT(misc-include-cleaner)
 #include <pybind11/stl/filesystem.h> // NOLINT(misc-include-cleaner)
 
+
 #ifdef HAVE_OPENMP
 #include <omp.h>
 #endif
@@ -53,6 +54,7 @@
 //  named arguments - removing the risk of accidentally swapping args and
 //  making it easier to specify a large number of args
 //  PyBind11 also relies on a super long function macro, so suppress this too
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
 // NOLINTBEGIN(bugprone-easily-swappable-parameters,readability-function-size,readability-identifier-naming,bugprone-reserved-identifier)
 // Forward declarations
 namespace // anonymous
@@ -1377,3 +1379,4 @@ PYBIND11_MODULE(sanafecpp, m)
 }
 // NOLINTEND(readability-function-cognitive-complexity)
 // NOLINTEND(bugprone-easily-swappable-parameters,readability-function-size,readability-identifier-naming,bugprone-reserved-identifier)
+// NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)

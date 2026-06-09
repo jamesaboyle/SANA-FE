@@ -183,7 +183,8 @@ void sanafe::netlist_read_network_entry(
         const std::vector<std::string_view> &fields, Architecture &arch,
         SpikingNetwork &net, const int line_number)
 {
-    const char entry_type = fields[0][0];
+    const std::string_view first_entry = fields.at(0);
+    const char entry_type = first_entry.at(0);
     // Sanity check input
     if ((entry_type == '\0') || (entry_type == '\n') || (entry_type == '#') ||
             (entry_type == '\r'))
@@ -342,7 +343,7 @@ size_t sanafe::netlist_embedded_json_end_pos(const char opening_char,
     size_t end_pos = 0;
     while (end_pos < all_fields.length())
     {
-        const char ch = all_fields[end_pos];
+        const char ch = all_fields.at(end_pos);
         if (ch == opening_char)
         {
             ++nested_level;
@@ -393,7 +394,7 @@ sanafe::netlist_parse_embedded_json(
         return model_attributes;
     }
 
-    const char opening_char = all_fields[0];
+    const char opening_char = all_fields.at(0);
     const size_t end_pos = netlist_embedded_json_end_pos(
             opening_char, all_fields, line_number);
     all_fields.resize(end_pos + 1);
@@ -416,7 +417,7 @@ sanafe::netlist_parse_embedded_json(
 void sanafe::netlist_read_group(const std::vector<std::string_view> &fields,
         sanafe::SpikingNetwork &net, const int line_number)
 {
-    const size_t neuron_count = field_to_int(fields[1]);
+    const size_t neuron_count = field_to_int(fields.at(1));
     std::string neuron_group_id = std::to_string(net.groups.size());
 
     TRACE1(DESCRIPTION, "Parsed neuron gid:%s\n", neuron_group_id.c_str());
@@ -471,7 +472,7 @@ void sanafe::netlist_read_neuron(const std::vector<std::string_view> &fields,
     size_t neuron_id = 0;
 
     std::tie(neuron_group_id, neuron_id) =
-            netlist_parse_neuron_field(fields[1]);
+            netlist_parse_neuron_field(fields.at(1));
     NeuronGroup &group = net.groups.at(neuron_group_id);
     if (neuron_id >= group.neurons.size())
     {
@@ -526,7 +527,7 @@ void sanafe::netlist_read_edge(const std::vector<std::string_view> &fields,
 
     // Edge on SNN graph (e.g., connection between neurons)
     std::tie(neuron_group_id, neuron_id, dest_group_id, dest_neuron_id) =
-            netlist_parse_edge_field(fields[1]);
+            netlist_parse_edge_field(fields.at(1));
     NeuronGroup &group = net.groups.at(neuron_group_id);
     if (neuron_id >= group.neurons.size())
     {
@@ -558,14 +559,14 @@ void sanafe::netlist_read_edge(const std::vector<std::string_view> &fields,
                 dest_group.name.c_str(), dest_group.neurons.size());
         throw std::invalid_argument("Invalid nid");
     }
-    Neuron &dest_neuron = dest_group.neurons[dest_neuron_id];
+    Neuron &dest_neuron = dest_group.neurons.at(dest_neuron_id);
 
     const auto attribute_fields =
             std::vector<std::string_view>(fields.begin() + 2, fields.end());
     auto attributes = netlist_parse_attributes(attribute_fields, line_number);
 
     const size_t idx = neuron.connect_to_neuron(dest_neuron);
-    Connection &con = neuron.edges_out[idx];
+    Connection &con = neuron.edges_out.at(idx);
     con.synapse_attributes = attributes;
     con.dendrite_attributes = attributes;
 }
@@ -580,14 +581,14 @@ void sanafe::netlist_read_mapping(const std::vector<std::string_view> &fields,
     size_t core_offset{0};
 
     std::tie(neuron_group_id, neuron_id, tile_id, core_offset) =
-            netlist_parse_mapping_field(fields[1]);
+            netlist_parse_mapping_field(fields.at(1));
     if (tile_id >= arch.tiles.size())
     {
         INFO("Error: Line %d: Tile (%zu) >= tile count (%zu)\n", line_number,
                 tile_id, arch.tiles.size());
         throw std::runtime_error("Error: Couldn't parse mapping.");
     }
-    TileConfiguration &tile = arch.tiles[tile_id];
+    TileConfiguration &tile = arch.tiles.at(tile_id);
     auto *tile_ptr = &tile;
 
     if (core_offset >= tile_ptr->cores.size())
@@ -596,7 +597,7 @@ void sanafe::netlist_read_mapping(const std::vector<std::string_view> &fields,
                 core_offset, tile_ptr->cores.size());
         throw std::runtime_error("Error: Couldn't parse mapping.");
     }
-    const CoreConfiguration &core = tile_ptr->cores[core_offset];
+    const CoreConfiguration &core = tile_ptr->cores.at(core_offset);
 
     NeuronGroup &group = net.groups.at(neuron_group_id);
     if (neuron_id >= group.neurons.size())
@@ -857,8 +858,10 @@ std::string sanafe::netlist_scalar_attributes_to_netlist(
 size_t sanafe::field_to_int(const std::string_view &field)
 {
     size_t val = 0;
+    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     auto [ptr, error_code] =
             std::from_chars(field.data(), field.data() + field.size(), val);
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (error_code != std::errc())
     {
         const std::string error_str =

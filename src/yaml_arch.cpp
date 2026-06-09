@@ -1,4 +1,3 @@
-
 #include <cstddef>
 #include <fstream>
 #include <ios>
@@ -26,6 +25,10 @@
 #include "yaml_common.hpp"
 
 constexpr std::string_view range_delimiter = "..";
+
+// Don't lint unchecked [] accesses, since this gets confused by the RapidYAML
+//  accesses (these accesses are checked and throw if the entry doesn't exist)
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
 
 void sanafe::yaml_parse_axon_in(const ryml::Parser &parser,
         const ryml::ConstNodeRef axon_in_node, CoreConfiguration &parent_core,
@@ -594,3 +597,5 @@ sanafe::Architecture sanafe::description_parse_arch_file_yaml(std::ifstream &fp)
     return description_parse_arch_section_yaml(
             parser, top_level_yaml["architecture"]);
 }
+
+// NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)

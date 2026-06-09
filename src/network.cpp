@@ -76,7 +76,7 @@ sanafe::NeuronGroup::NeuronGroup(const std::string group_name,
 sanafe::Neuron::Neuron(const size_t neuron_offset, SpikingNetwork &net,
         std::string parent_group_name, const NeuronConfiguration &config)
         : parent_group_name(std::move(parent_group_name))
-        , parent_net(net)
+        , parent_net(&net)
         , offset(neuron_offset)
 {
     set_attributes(config);
@@ -85,7 +85,7 @@ sanafe::Neuron::Neuron(const size_t neuron_offset, SpikingNetwork &net,
 void sanafe::Neuron::map_to_core(const CoreConfiguration &core)
 {
     this->core_address = core.address;
-    SpikingNetwork &net = parent_net;
+    SpikingNetwork &net = *parent_net;
     mapping_order = net.update_mapping_count();
     TRACE1(NET, "Mapping order for nid:%s.%zu = %zu\n",
             parent_group_name.c_str(), offset, mapping_order);
@@ -250,10 +250,10 @@ void sanafe::NeuronGroup::connect_neurons_sparse(NeuronGroup &dest_group,
             throw std::invalid_argument("Error: dest nid is out of range.");
         }
 
-        Neuron &source = neurons[source_id];
-        Neuron &dest = dest_group.neurons[dest_id];
+        Neuron &source = neurons.at(source_id);
+        Neuron &dest = dest_group.neurons.at(dest_id);
         const size_t connection_idx = source.connect_to_neuron(dest);
-        Connection &con = source.edges_out[connection_idx];
+        Connection &con = source.edges_out.at(connection_idx);
 
         // Create attributes map for this neuron
         for (const auto &[key, value_list] : attribute_lists)
@@ -542,7 +542,7 @@ void sanafe::NeuronGroup::conv2d_create_and_configure_connection(Neuron &source,
 {
     // Create the connection
     const size_t con_idx = source.connect_to_neuron(dest);
-    Connection &con = source.edges_out[con_idx];
+    Connection &con = source.edges_out.at(con_idx);
 
     // Set the attributes for this connection
     for (const auto &[key, attribute_list] : attribute_lists)
@@ -575,18 +575,19 @@ void sanafe::NeuronGroup::connect_neurons_dense(NeuronGroup &dest_group,
         const std::map<std::string, std::vector<ModelAttribute>>
                 &attribute_lists)
 {
-    for (size_t source_index = 0; source_index < neurons.size(); ++source_index)
+    for (size_t source_index = 0UL; source_index < neurons.size();
+            ++source_index)
     {
-        Neuron &source = neurons[source_index];
+        Neuron &source = neurons.at(source_index);
 
-        for (size_t dest_index = 0; dest_index < dest_group.neurons.size();
+        for (size_t dest_index = 0UL; dest_index < dest_group.neurons.size();
                 ++dest_index)
         {
-            Neuron &dest = dest_group.neurons[dest_index];
+            Neuron &dest = dest_group.neurons.at(dest_index);
             const size_t list_index =
                     (source_index * dest_group.neurons.size()) + dest_index;
             const size_t con_idx = source.connect_to_neuron(dest);
-            Connection &con = source.edges_out[con_idx];
+            Connection &con = source.edges_out.at(con_idx);
             for (const auto &[key, attribute_list] : attribute_lists)
             {
                 if (attribute_list.size() <= list_index)

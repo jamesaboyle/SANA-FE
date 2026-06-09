@@ -632,7 +632,7 @@ void sanafe::SpikingChip::process_neurons(Timestep &ts)
     // NOLINTNEXTLINE(modernize-loop-convert)
     for (int idx = 0; idx < static_cast<int>(core_list.size()); idx++)
     {
-        Core &core = core_list[idx];
+        Core &core = core_list.at(idx);
         for (MappedNeuron &n : core.neurons)
         {
             process_neuron(ts, n);
@@ -679,7 +679,7 @@ void sanafe::SpikingChip::process_messages(Timestep &ts)
     // NOLINTNEXTLINE(modernize-loop-convert)
     for (int idx = 0; idx < static_cast<int>(core_list.size()); idx++)
     {
-        Core &core = core_list[idx];
+        Core &core = core_list.at(idx);
 #ifdef HAVE_OPENMP
         TRACE3(CHIP, "omp thread:%d\n", omp_get_thread_num());
 #endif
@@ -754,7 +754,7 @@ double sanafe::SpikingChip::process_message(
         //  updates to the dendrite and/or soma units as well. Keep propagating
         //  outputs/inputs until we hit the time-step buffer, where outputs
         //  are stored as inputs ready for the next time-step
-        MappedNeuron &n = con.post_neuron_ref;
+        MappedNeuron &n = *(con.post_neuron);
 
         const PipelineResult pipeline_output = execute_pipeline(
                 con.message_processing_pipeline, ts, n, &con, empty_input);
@@ -986,7 +986,7 @@ void sanafe::SpikingChip::forced_updates(const Timestep &ts)
     // NOLINTNEXTLINE(modernize-loop-convert)
     for (int idx = 0; idx < static_cast<int>(core_list.size()); idx++)
     {
-        Core &core = core_list[idx];
+        Core &core = core_list.at(idx);
         for (MappedNeuron &n : core.neurons)
         {
             // We cache whether to update one or more synapse units for each
@@ -1281,13 +1281,13 @@ void sanafe::SpikingChip::sim_create_neuron_axons(MappedNeuron &pre_neuron)
     {
         // Add every connection to the axon. Also link to the map in the
         //  post synaptic core / neuron
-        const MappedNeuron &post_neuron = curr_connection.post_neuron_ref;
+        const MappedNeuron &post_neuron = *(curr_connection.post_neuron);
         Core &post_core = *(post_neuron.core);
         TRACE3(CHIP, "\tAdding connection:%s.%zu->%s.%zu\n",
-                curr_connection.pre_neuron_ref.get().parent_group_name.c_str(),
-                curr_connection.pre_neuron_ref.get().offset,
-                curr_connection.post_neuron_ref.get().parent_group_name.c_str(),
-                curr_connection.post_neuron_ref.get().offset);
+                curr_connection.pre_neuron->parent_group_name.c_str(),
+                curr_connection.pre_neuron->offset,
+                curr_connection.post_neuron->parent_group_name.c_str(),
+                curr_connection.post_neuron->offset);
         sim_add_connection_to_axon(curr_connection, post_core);
     }
     TRACE1(CHIP, "Finished mapping connections to hardware for nid:%s.%zu.\n",
@@ -1302,10 +1302,9 @@ std::set<sanafe::Core *> sanafe::SpikingChip::sim_get_post_synaptic_cores(
     std::set<Core *> cores_out;
     for (const MappedConnection &curr_connection : neuron.connections_out)
     {
-        const MappedNeuron &post_neuron = curr_connection.post_neuron_ref;
-        Core *const dest_core = post_neuron.core;
-        cores_out.insert(dest_core);
-        TRACE1(CHIP, "Connected to dest core: %zu\n", dest_core->id);
+        const MappedNeuron &post_neuron = *(curr_connection.post_neuron);
+        cores_out.insert(post_neuron.core);
+        TRACE1(CHIP, "Connected to dest core: %zu\n", post_neuron.core->id);
     }
 
     return cores_out;
@@ -1397,14 +1396,8 @@ void sanafe::SpikingChip::sim_reset_measurements()
 {
     // Reset any energy, time latency or other measurements of network hardware
     //  This is called every timestep
-
-#ifdef HAVE_OPENMP
-#pragma omp parallel for schedule(dynamic)
-#endif
-    // NOLINTNEXTLINE(modernize-loop-convert)
-    for (int idx = 0; idx < static_cast<int>(tiles.size()); idx++)
+    for (auto &t : tiles)
     {
-        Tile &t = tiles[idx];
         // Reset tile
         t.energy = 0.0;
         t.hops = 0;

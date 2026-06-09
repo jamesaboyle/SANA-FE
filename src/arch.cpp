@@ -97,7 +97,7 @@ sanafe::TileConfiguration &sanafe::Architecture::create_tile(
     // Tile IDs serve as both array indices and as network addresses in the NoC
     //  topology, enabling O(1) tile lookups and efficient message routing
     tiles.emplace_back(std::move(tile_name), new_tile_id, power_metrics);
-    TileConfiguration &new_tile = tiles[new_tile_id];
+    TileConfiguration &new_tile = tiles.at(new_tile_id);
     std::tie(new_tile.x, new_tile.y) = calculate_tile_coordinates(new_tile.id);
 
     return new_tile;
@@ -144,7 +144,7 @@ sanafe::CoreConfiguration &sanafe::Architecture::create_core(
     max_cores_per_tile =
             std::max<size_t>(max_cores_per_tile, offset_within_tile + 1);
     TRACE1(ARCH, "Core created id:%zu.%zu.\n", parent_tile_id, new_core_id);
-    CoreConfiguration &new_core = parent_tile.cores[offset_within_tile];
+    CoreConfiguration &new_core = parent_tile.cores.at(offset_within_tile);
 
     return new_core;
 }

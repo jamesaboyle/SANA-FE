@@ -59,8 +59,8 @@ void sanafe::PipelineUnit::check_implemented(
 size_t sanafe::PipelineUnit::add_connection(MappedConnection &con)
 {
     // Add connection and update connection's address
-    const MappedNeuron &pre_neuron = con.pre_neuron_ref.get();
-    const MappedNeuron &post_neuron = con.post_neuron_ref.get();
+    const MappedNeuron &pre_neuron = *(con.pre_neuron);
+    const MappedNeuron &post_neuron = *(con.post_neuron);
 
     // TODO: we track this in the synapse but not the dendrite h/w?
 

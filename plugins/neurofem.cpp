@@ -18,8 +18,6 @@
 #include "plugins.hpp"
 #include "print.hpp"
 
-//#include <iostream>
-
 class NeuroFEMModel : public sanafe::PipelineUnit
 {
 public:

@@ -43,6 +43,8 @@
 #include "yaml_common.hpp"
 #include "yaml_snn.hpp"
 
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
+
 namespace // anonymous
 {
 std::string_view description_trim_whitespace(const std::string_view input)
@@ -504,7 +506,7 @@ void sanafe::description_parse_neuron_connection(
         throw YamlDescriptionParsingError(error, parser, attributes_node);
     }
     Neuron &source_neuron =
-            source_group.neurons[source_address.neuron_offset.value()];
+            source_group.neurons.at(source_address.neuron_offset.value());
 
     if (net.groups.find(target_address.group_name) == net.groups.end())
     {
@@ -529,7 +531,7 @@ void sanafe::description_parse_neuron_connection(
             target_group.neurons.at(target_address.neuron_offset.value());
 
     const size_t edge_idx = source_neuron.connect_to_neuron(target_neuron);
-    Connection &edge = source_neuron.edges_out[edge_idx];
+    Connection &edge = source_neuron.edges_out.at(edge_idx);
     description_parse_edge_attributes(edge, parser, attributes_node);
 }
 
@@ -674,9 +676,9 @@ bool sanafe::yaml_parse_sparse_attribute(const std::string attribute_name,
                 if (src_target_vec.size() == 2)
                 {
                     const size_t source_id =
-                            static_cast<int>(src_target_vec[0]);
+                            static_cast<int>(src_target_vec.at(0));
                     const size_t target_id =
-                            static_cast<int>(src_target_vec[1]);
+                            static_cast<int>(src_target_vec.at(1));
                     source_dest_id_pairs.emplace_back(source_id, target_id);
                 }
                 else
@@ -987,7 +989,7 @@ void sanafe::description_parse_mapping(const ryml::Parser &parser,
             throw YamlDescriptionParsingError(error, parser, mapping_info);
         }
         // Get any mapping attributes or configuration
-        Neuron &n = group.neurons[neuron_offset];
+        Neuron &n = group.neurons.at(neuron_offset);
         description_map_neuron(parser, n, mapping_info, arch);
     }
 }
@@ -1285,7 +1287,7 @@ ryml::NodeRef sanafe::yaml_serialize_neuron_run(ryml::NodeRef neurons_node,
     auto neuron_map = neurons_node.append_child();
     neuron_map |= ryml::MAP; // NOLINT(misc-include-cleaner)
 
-    const Neuron &neuron = group.neurons[start_offset];
+    const Neuron &neuron = group.neurons.at(start_offset);
     std::string neuron_description = std::to_string(start_offset);
     if (end_offset != start_offset)
     {
@@ -1560,3 +1562,5 @@ void sanafe::yaml_create_mappings(ryml::NodeRef &node,
         }
     }
 }
+
+// NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)

@@ -96,7 +96,7 @@ public:
     std::string default_synapse_hw_name;
     std::string dendrite_hw_name;
     std::string parent_group_name;
-    std::reference_wrapper<SpikingNetwork> parent_net;
+    SpikingNetwork *parent_net;
     size_t offset{};
     std::optional<CoreAddress> core_address{std::nullopt};
     size_t mapping_order{};

@@ -29,6 +29,10 @@
 #include "schedule.hpp"
 #include "timestep.hpp"
 
+// Performance critical code, so don't add a ton of extra bounds checking. There
+//  may be a better/safer way to do this, for now, disable this linter noise
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
+
 namespace
 {
 sanafe::TimingModelFunc get_model_function(sanafe::TimingModel model)
@@ -660,3 +664,5 @@ void sanafe::schedule_stop_all_threads(Scheduler &scheduler)
 
     TRACE1(SCHEDULER, "All threads stopped successfully.\n");
 }
+
+// NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)

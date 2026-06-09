@@ -92,6 +92,7 @@ sanafe::PipelineResult sanafe::AccumulatorModel::update(size_t neuron_address,
     return output;
 }
 
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
 sanafe::PipelineResult sanafe::AccumulatorWithDelayModel::update(
         size_t neuron_address, std::optional<double> current,
         std::optional<size_t> synapse_address, const long int simulation_time)
@@ -128,6 +129,7 @@ sanafe::PipelineResult sanafe::AccumulatorWithDelayModel::update(
 
     return output;
 }
+// NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
 
 void sanafe::AccumulatorWithDelayModel::set_attribute_edge(
         size_t synapse_address, const std::string &attribute_name,
@@ -146,7 +148,7 @@ void sanafe::AccumulatorWithDelayModel::set_attribute_edge(
         {
             throw std::runtime_error("Error: delay > max delay\n");
         }
-        delays[synapse_address] = static_cast<size_t>(delay);
+        delays.at(synapse_address) = static_cast<size_t>(delay);
     }
 }
 
@@ -163,11 +165,12 @@ void sanafe::AccumulatorWithDelayModel::track_connection(
     }
 }
 
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
 void sanafe::MultiTapModel1D::calculate_next_state()
 {
     const size_t taps = tap_voltages.size();
 
-    for (size_t i = 0; i < tap_voltages.size(); i++)
+    for (size_t i = 0UL; i < tap_voltages.size(); i++)
     {
         TRACE1(MODELS, "\tv[%zu]: %lf\n", i, tap_voltages[i]);
     }
@@ -256,6 +259,7 @@ sanafe::PipelineResult sanafe::MultiTapModel1D::update(
     output.current = tap_voltages[0];
     return output;
 }
+// NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
 
 // NOLINTNEXTLINE(readability-function-size)
 void sanafe::MultiTapModel1D::set_attribute_neuron(const size_t /*address*/,
@@ -341,18 +345,14 @@ void sanafe::MultiTapModel1D::set_attribute_edge(const size_t address,
         {
             synapse_to_tap.resize(address + 1, 0);
         }
-        synapse_to_tap[address] = static_cast<int>(param);
+        synapse_to_tap.at(address) = static_cast<int>(param);
     }
 }
 
 void sanafe::MultiTapModel1D::reset()
 {
-    const size_t n_taps = tap_voltages.size();
-    for (size_t tap = 0; tap < n_taps; ++tap)
-    {
-        tap_voltages[tap] = 0.0;
-        next_voltages[tap] = 0.0;
-    }
+    tap_voltages.assign(tap_voltages.size(), 0.0);
+    next_voltages.assign(next_voltages.size(), 0.0);
 }
 
 // **** Soma hardware unit models ****
@@ -506,7 +506,7 @@ sanafe::PipelineResult sanafe::LoihiLifModel::update(
         const size_t neuron_address, const std::optional<double> current_in,
         const long int simulation_time)
 {
-    LoihiCompartment &cx = compartments[neuron_address];
+    LoihiCompartment &cx = compartments.at(neuron_address);
     if (cx.timesteps_simulated == simulation_time)
     {
         throw std::runtime_error(
@@ -761,7 +761,7 @@ bool sanafe::TrueNorthModel::truenorth_threshold_and_reset(TrueNorthNeuron &n)
         //  which are often implemented in H/W to generate psuedorandom numbers.
         //  Checkers will complain this function is not very 'random'
         //  but here we care about emulating hardware behavior over randomness.
-        // NOLINTNEXTLINE(cert-msc30-c, cert-msc50-cpp)
+        // NOLINTNEXTLINE(cert-msc30-c, cert-msc50-cpp, misc-predictable-rand)
         const unsigned int r = std::rand() & n.random_range_mask;
         v += static_cast<double>(r);
     }
@@ -809,7 +809,7 @@ sanafe::PipelineResult sanafe::TrueNorthModel::update(
         const long int /*simulation_time*/)
 {
     sanafe::NeuronStatus state = sanafe::idle;
-    TrueNorthNeuron &n = neurons[neuron_address];
+    TrueNorthNeuron &n = neurons.at(neuron_address);
 
     if ((std::fabs(n.potential) > 0.0) || current_in.has_value() ||
             (std::fabs(n.bias) > 0.0) || n.force_update)
