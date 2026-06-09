@@ -28,7 +28,6 @@
 #include <pybind11/stl.h> // NOLINT(misc-include-cleaner)
 #include <pybind11/stl/filesystem.h> // NOLINT(misc-include-cleaner)
 
-
 #ifdef HAVE_OPENMP
 #include <omp.h>
 #endif
@@ -1069,6 +1068,8 @@ PYBIND11_MODULE(sanafecpp, m)
             m, "NeuronGroup", docstrings::neuron_group_doc)
             .def("__repr__", &sanafe::NeuronGroup::info)
             .def("get_name", &sanafe::NeuronGroup::get_name)
+            .def("map_to_core", &sanafe::NeuronGroup::map_to_core,
+                    docstrings::group_map_to_core_doc)
             .def("connect_neurons_dense", &pyconnect_neurons_dense,
                     docstrings::neuron_group_connect_dense_doc)
             .def("connect_neurons_sparse", &pyconnect_neurons_sparse,

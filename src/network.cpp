@@ -192,6 +192,14 @@ size_t sanafe::Neuron::connect_to_neuron(Neuron &dest)
     return edge.id;
 }
 
+void sanafe::NeuronGroup::map_to_core(const CoreConfiguration &core)
+{
+    for (auto &n : neurons)
+    {
+        n.map_to_core(core);
+    }
+}
+
 sanafe::SpikingNetwork sanafe::load_net(const std::filesystem::path &path,
         Architecture &arch, const bool use_netlist_format)
 {

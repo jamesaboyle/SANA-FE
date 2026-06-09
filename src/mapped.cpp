@@ -1,6 +1,5 @@
 
 #include <cstddef>
-#include <functional>
 #include <map>
 #include <optional>
 #include <stdexcept>

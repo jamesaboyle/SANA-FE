@@ -31,11 +31,10 @@
 static constexpr std::array<std::string_view, 8> skip_keys = {
         // Reserved neuron specific attributes for the simulator kernel
         //  (see attributes.hpp)
-        "default_synapse_hw_name", "dendrite_hw_name",
-        "log_potential", "log_spikes", "soma_hw_name",
+        "default_synapse_hw_name", "dendrite_hw_name", "log_potential",
+        "log_spikes", "soma_hw_name",
         // Unit-specific keys (parsed elsewhere)
-        "dendrite", "soma", "synapse"
-};
+        "dendrite", "soma", "synapse"};
 
 // NOLINTBEGIN(misc-include-cleaner)
 sanafe::YamlDescriptionParsingError::YamlDescriptionParsingError(
