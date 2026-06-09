@@ -56,7 +56,7 @@ class TestModuleSurface(unittest.TestCase):
         models = sanafe.model_attributes
         names = set(models.keys())
         # Documented built-in models that the test architecture relies on.
-        self.assertIn("leaky_integrate_and_fire", names)
+        self.assertIn("leaky_integrate_fire", names)
         self.assertIn("input", names)
 
     def test_buffer_position_enum(self):

@@ -996,7 +996,7 @@ const sanafe::ModelMap &sanafe::get_builtin_models()
                     {"accumulator_with_delay", nullptr},
                     {"taps", &MultiTapModel1D::multitap_attributes},
                     {"input", &InputModel::input_attributes},
-                    {"leaky_integrate_and_fire",
+                    {"leaky_integrate_fire",
                             &LoihiLifModel::loihi_lif_attributes},
                     {"truenorth", &TrueNorthModel::truenorth_attributes}};
 
